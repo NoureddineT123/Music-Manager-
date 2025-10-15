@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Scheduler</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+
+body {
+  background: #f3f2f1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.calendar {
+  width: 100%;
+  max-width: 1100px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #0078d4;
+  color: #fff;
+}
+
+.calendar-header h2 {
+  font-weight: 600;
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: 0.2s;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,0.2);
+  border-radius: 5px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+}
+
+.day-header {
+  background: #f3f2f1;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  font-weight: 500;
+}
+
+.time-label {
+  background: #f3f2f1;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.time-slot {
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  min-height: 50px;
+  position: relative;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.time-slot:hover {
+  background: #eaeaea;
+}
+
+.event {
+  background: #0078d4;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin: 2px;
+  padding: 2px 4px;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+
+.event.absent { background: #ff4c4c; }
+.event.present { background: #28a745; }
+</style>
+</head>
+<body>
+
+<div class="calendar">
+  <div class="calendar-header">
+    <button class="nav-btn" id="prevWeek">&lt;</button>
+    <h2 id="weekRange">Week of Oct 15 - Oct 21, 2025</h2>
+    <button class="nav-btn" id="nextWeek">&gt;</button>
+  </div>
+  <div class="calendar-grid" id="calendarGrid"></div>
+</div>
+
+<script>
+const calendarGrid = document.getElementById('calendarGrid');
+const weekRangeEl = document.getElementById('weekRange');
+
+let currentDate = new Date('2025-10-15'); // starting Monday
+
+// Load events from localStorage
+let events = JSON.parse(localStorage.getItem('studentEvents')) || {};
+
+function saveEvents() {
+  localStorage.setItem('studentEvents', JSON.stringify(events));
+}
+
+function renderCalendar(date) {
+  calendarGrid.innerHTML = '';
+  const startOfWeek = new Date(date);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // Monday
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+  const options = { month: 'short', day: 'numeric', year: 'numeric' };
+  weekRangeEl.textContent = `Week of ${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+
+  // Headers
+  calendarGrid.appendChild(document.createElement('div')); // empty top-left
+  for(let i=0;i<7;i++){
+    const dayHeader = document.createElement('div');
+    dayHeader.classList.add('day-header');
+    const dayDate = new Date(startOfWeek);
+    dayDate.setDate(dayDate.getDate()+i);
+    dayHeader.textContent = dayDate.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', year: 'numeric' });
+    calendarGrid.appendChild(dayHeader);
+  }
+
+  // Time rows 8:00 - 20:00 in half-hours
+  for(let hour=8; hour<=20; hour++){
+    for(let min=0; min<60; min+=30){
+      const timeLabel = document.createElement('div');
+      timeLabel.classList.add('time-label');
+      timeLabel.textContent = `${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+      calendarGrid.appendChild(timeLabel);
+
+      for(let day=0; day<7; day++){
+        const slot = document.createElement('div');
+        slot.classList.add('time-slot');
+
+        const slotDate = new Date(startOfWeek);
+        slotDate.setDate(slotDate.getDate()+day);
+        const key = `${slotDate.toISOString().slice(0,10)}-${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+
+        if(events[key]){
+          events[key].forEach((ev, index)=>{
+            const evEl = document.createElement('div');
+            evEl.classList.add('event', ev.absent?'absent':'present');
+            evEl.textContent = `Name: ${ev.student}\nGrade: ${ev.grade}\nStatus: ${ev.absent?'Absent':'Present'}\nNote: ${ev.note}`;
+
+            evEl.addEventListener('click', (e)=>{
+              e.stopPropagation(); // prevent adding new student
+              const action = prompt(`Edit or Delete ${ev.student}? Type "edit" or "delete":`);
+              if(action && action.toLowerCase() === 'delete'){
+                events[key].splice(index,1);
+                if(events[key].length === 0) delete events[key];
+              } else if(action && action.toLowerCase() === 'edit'){
+                const newName = prompt('Student Name:', ev.student) || ev.student;
+                const newGrade = prompt('Grade:', ev.grade) || ev.grade;
+                const newAbsent = confirm('Is the student absent? OK=Absent, Cancel=Present');
+                const newNote = prompt('Note:', ev.note) || ev.note;
+                events[key][index] = {student:newName, grade:newGrade, absent:newAbsent, note:newNote};
+              }
+              saveEvents();
+              renderCalendar(currentDate);
+            });
+
+            slot.appendChild(evEl);
+          });
+        }
+
+        slot.addEventListener('click', ()=>{
+          const student = prompt('Student Name:');
+          if(!student) return;
+          const grade = prompt('Grade:');
+          const absent = confirm('Is the student absent? OK = Absent, Cancel = Present');
+          const note = prompt('Note:');
+          if(!events[key]) events[key] = [];
+          events[key].push({student, grade, absent, note});
+          saveEvents();
+          renderCalendar(currentDate);
+        });
+
+        calendarGrid.appendChild(slot);
+      }
+    }
+  }
+}
+
+document.getElementById('prevWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate()-7);
+  renderCalendar(currentDate);
+});
+
+document.getElementById('nextWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate()+7);
+  renderCalendar(currentDate);
+});
+
+renderCalendar(currentDate);
+</script>
+
+</body>
+</html>
