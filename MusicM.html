@@ -3,222 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Attendance Calendar</title>
+<title>Student Scheduler</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap');
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
 
-    body {
-        background: linear-gradient(135deg, #f6f9fc, #e9eff5);
-        min-height: 100vh;
-        padding: 30px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+body {
+  background: #f3f2f1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
 
-    h1 {
-        font-size: 2.5rem;
-        margin-bottom: 30px;
-        color: #34495e;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    }
+.calendar {
+  width: 100%;
+  max-width: 1100px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
 
-    .form-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 40px;
-    }
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #0078d4;
+  color: #fff;
+}
 
-    input, select, button {
-        padding: 12px 15px;
-        border-radius: 12px;
-        border: 1px solid #ccc;
-        outline: none;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
+.calendar-header h2 {
+  font-weight: 600;
+}
 
-    input:focus, select:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 10px rgba(52,152,219,0.3);
-    }
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: 0.2s;
+}
 
-    button {
-        background: #3498db;
-        color: white;
-        cursor: pointer;
-        border: none;
-    }
+.nav-btn:hover {
+  background: rgba(255,255,255,0.2);
+  border-radius: 5px;
+}
 
-    button:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+}
 
-    table {
-        width: 100%;
-        max-width: 900px;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        background: white;
-    }
+.day-header {
+  background: #f3f2f1;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  font-weight: 500;
+}
 
-    th, td {
-        padding: 15px 20px;
-        text-align: left;
-        font-size: 1rem;
-    }
+.time-label {
+  background: #f3f2f1;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  font-size: 0.85rem;
+  color: #555;
+}
 
-    th {
-        background: #3498db;
-        color: white;
-        font-weight: 500;
-    }
+.time-slot {
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  min-height: 50px;
+  position: relative;
+  transition: background 0.2s;
+  cursor: pointer;
+}
 
-    tr:nth-child(even) td {
-        background: #f4f6f8;
-    }
+.time-slot:hover {
+  background: #eaeaea;
+}
 
-    tr.absent td {
-        background: #ffb3b3 !important;
-    }
+.event {
+  background: #0078d4;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin: 2px;
+  padding: 2px 4px;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
 
-    tr:hover td {
-        background: #d6eaf8;
-        transition: all 0.3s;
-    }
-
-    td button {
-        background: #e74c3c;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 0.9rem;
-    }
-
-    td button:hover {
-        background: #c0392b;
-        transform: translateY(-1px);
-    }
-
-    @media(max-width: 768px) {
-        body { padding: 15px; }
-        table, .form-container { width: 100%; }
-        input, select, button { width: 100%; }
-        .form-container { flex-direction: column; }
-    }
+.event.absent { background: #ff4c4c; }
+.event.present { background: #28a745; }
 </style>
 </head>
 <body>
 
-<h1>📅 Student Attendance Calendar</h1>
-
-<div class="form-container">
-    <input type="text" id="studentName" placeholder="Student Name">
-    <button onclick="addStudent()">Add Student</button>
+<div class="calendar">
+  <div class="calendar-header">
+    <button class="nav-btn" id="prevWeek">&lt;</button>
+    <h2 id="weekRange">Week of Oct 15 - Oct 21, 2025</h2>
+    <button class="nav-btn" id="nextWeek">&gt;</button>
+  </div>
+  <div class="calendar-grid" id="calendarGrid"></div>
 </div>
-
-<div class="form-container">
-    <input type="date" id="noteDate">
-    <select id="studentSelect"></select>
-    <select id="attendance">
-        <option value="present">Present</option>
-        <option value="absent">Absent</option>
-    </select>
-    <input type="text" id="noteText" placeholder="Add a note">
-    <button onclick="addNote()">Add Note</button>
-</div>
-
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Notes</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody id="studentTable">
-    </tbody>
-</table>
 
 <script>
-let students = JSON.parse(localStorage.getItem('students')) || [];
-let notes = JSON.parse(localStorage.getItem('notes')) || [];
+const calendarGrid = document.getElementById('calendarGrid');
+const weekRangeEl = document.getElementById('weekRange');
 
-function addStudent() {
-    const name = document.getElementById('studentName').value.trim();
-    if(!name) return alert("Enter a name");
-    students.push({name});
-    localStorage.setItem('students', JSON.stringify(students));
-    document.getElementById('studentName').value = '';
-    renderStudents();
-    renderStudentSelect();
+let currentDate = new Date('2025-10-15'); // starting Monday
+
+// Load events from localStorage
+let events = JSON.parse(localStorage.getItem('studentEvents')) || {};
+
+function saveEvents() {
+  localStorage.setItem('studentEvents', JSON.stringify(events));
 }
 
-function removeStudent(index) {
-    students.splice(index, 1);
-    localStorage.setItem('students', JSON.stringify(students));
-    renderStudents();
-    renderStudentSelect();
+function renderCalendar(date) {
+  calendarGrid.innerHTML = '';
+  const startOfWeek = new Date(date);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1); // Monday
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(endOfWeek.getDate() + 6);
+
+  const options = { month: 'short', day: 'numeric', year: 'numeric' };
+  weekRangeEl.textContent = `Week of ${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+
+  // Headers
+  calendarGrid.appendChild(document.createElement('div')); // empty top-left
+  for(let i=0;i<7;i++){
+    const dayHeader = document.createElement('div');
+    dayHeader.classList.add('day-header');
+    const dayDate = new Date(startOfWeek);
+    dayDate.setDate(dayDate.getDate()+i);
+    dayHeader.textContent = dayDate.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', year: 'numeric' });
+    calendarGrid.appendChild(dayHeader);
+  }
+
+  // Time rows 8:00 - 20:00 in half-hours
+  for(let hour=8; hour<=20; hour++){
+    for(let min=0; min<60; min+=30){
+      const timeLabel = document.createElement('div');
+      timeLabel.classList.add('time-label');
+      timeLabel.textContent = `${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+      calendarGrid.appendChild(timeLabel);
+
+      for(let day=0; day<7; day++){
+        const slot = document.createElement('div');
+        slot.classList.add('time-slot');
+
+        const slotDate = new Date(startOfWeek);
+        slotDate.setDate(slotDate.getDate()+day);
+        const key = `${slotDate.toISOString().slice(0,10)}-${hour.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}`;
+
+        if(events[key]){
+          events[key].forEach((ev, index)=>{
+            const evEl = document.createElement('div');
+            evEl.classList.add('event', ev.absent?'absent':'present');
+            evEl.textContent = `Name: ${ev.student}\nGrade: ${ev.grade}\nStatus: ${ev.absent?'Absent':'Present'}\nNote: ${ev.note}`;
+
+            evEl.addEventListener('click', (e)=>{
+              e.stopPropagation(); // prevent adding new student
+              const action = prompt(`Edit or Delete ${ev.student}? Type "edit" or "delete":`);
+              if(action && action.toLowerCase() === 'delete'){
+                events[key].splice(index,1);
+                if(events[key].length === 0) delete events[key];
+              } else if(action && action.toLowerCase() === 'edit'){
+                const newName = prompt('Student Name:', ev.student) || ev.student;
+                const newGrade = prompt('Grade:', ev.grade) || ev.grade;
+                const newAbsent = confirm('Is the student absent? OK=Absent, Cancel=Present');
+                const newNote = prompt('Note:', ev.note) || ev.note;
+                events[key][index] = {student:newName, grade:newGrade, absent:newAbsent, note:newNote};
+              }
+              saveEvents();
+              renderCalendar(currentDate);
+            });
+
+            slot.appendChild(evEl);
+          });
+        }
+
+        slot.addEventListener('click', ()=>{
+          const student = prompt('Student Name:');
+          if(!student) return;
+          const grade = prompt('Grade:');
+          const absent = confirm('Is the student absent? OK = Absent, Cancel = Present');
+          const note = prompt('Note:');
+          if(!events[key]) events[key] = [];
+          events[key].push({student, grade, absent, note});
+          saveEvents();
+          renderCalendar(currentDate);
+        });
+
+        calendarGrid.appendChild(slot);
+      }
+    }
+  }
 }
 
-function addNote() {
-    const date = document.getElementById('noteDate').value;
-    const student = document.getElementById('studentSelect').value;
-    const status = document.getElementById('attendance').value;
-    const text = document.getElementById('noteText').value.trim();
+document.getElementById('prevWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate()-7);
+  renderCalendar(currentDate);
+});
 
-    if(!date || !student) return alert("Select date and student");
+document.getElementById('nextWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate()+7);
+  renderCalendar(currentDate);
+});
 
-    notes.push({date, student, status, text});
-    localStorage.setItem('notes', JSON.stringify(notes));
-
-    document.getElementById('noteText').value = '';
-    renderStudents();
-}
-
-function renderStudents() {
-    const tbody = document.getElementById('studentTable');
-    tbody.innerHTML = '';
-    students.forEach((s, i) => {
-        const studentNotes = notes.filter(n => n.student === s.name);
-        const latest = studentNotes.sort((a,b) => new Date(b.date) - new Date(a.date))[0];
-        const status = latest ? latest.status : '';
-        const noteText = latest ? latest.text : '';
-
-        const tr = document.createElement('tr');
-        if(status === 'absent') tr.classList.add('absent');
-        tr.innerHTML = `
-            <td>${s.name}</td>
-            <td>${status}</td>
-            <td>${noteText}</td>
-            <td><button onclick="removeStudent(${i})">Remove</button></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function renderStudentSelect() {
-    const select = document.getElementById('studentSelect');
-    select.innerHTML = '';
-    students.forEach(s => {
-        const option = document.createElement('option');
-        option.value = s.name;
-        option.textContent = s.name;
-        select.appendChild(option);
-    });
-}
-
-renderStudents();
-renderStudentSelect();
+renderCalendar(currentDate);
 </script>
 
 </body>
