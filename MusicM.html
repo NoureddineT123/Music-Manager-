@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Attendance Calendar</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+
+    body {
+        background: linear-gradient(135deg, #f6f9fc, #e9eff5);
+        min-height: 100vh;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: #34495e;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    input, select, button {
+        padding: 12px 15px;
+        border-radius: 12px;
+        border: 1px solid #ccc;
+        outline: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 10px rgba(52,152,219,0.3);
+    }
+
+    button {
+        background: #3498db;
+        color: white;
+        cursor: pointer;
+        border: none;
+    }
+
+    button:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        max-width: 900px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        background: white;
+    }
+
+    th, td {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    th {
+        background: #3498db;
+        color: white;
+        font-weight: 500;
+    }
+
+    tr:nth-child(even) td {
+        background: #f4f6f8;
+    }
+
+    tr.absent td {
+        background: #ffb3b3 !important;
+    }
+
+    tr:hover td {
+        background: #d6eaf8;
+        transition: all 0.3s;
+    }
+
+    td button {
+        background: #e74c3c;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    td button:hover {
+        background: #c0392b;
+        transform: translateY(-1px);
+    }
+
+    @media(max-width: 768px) {
+        body { padding: 15px; }
+        table, .form-container { width: 100%; }
+        input, select, button { width: 100%; }
+        .form-container { flex-direction: column; }
+    }
+</style>
+</head>
+<body>
+
+<h1>📅 Student Attendance Calendar</h1>
+
+<div class="form-container">
+    <input type="text" id="studentName" placeholder="Student Name">
+    <button onclick="addStudent()">Add Student</button>
+</div>
+
+<div class="form-container">
+    <input type="date" id="noteDate">
+    <select id="studentSelect"></select>
+    <select id="attendance">
+        <option value="present">Present</option>
+        <option value="absent">Absent</option>
+    </select>
+    <input type="text" id="noteText" placeholder="Add a note">
+    <button onclick="addNote()">Add Note</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="studentTable">
+    </tbody>
+</table>
+
+<script>
+let students = JSON.parse(localStorage.getItem('students')) || [];
+let notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+function addStudent() {
+    const name = document.getElementById('studentName').value.trim();
+    if(!name) return alert("Enter a name");
+    students.push({name});
+    localStorage.setItem('students', JSON.stringify(students));
+    document.getElementById('studentName').value = '';
+    renderStudents();
+    renderStudentSelect();
+}
+
+function removeStudent(index) {
+    students.splice(index, 1);
+    localStorage.setItem('students', JSON.stringify(students));
+    renderStudents();
+    renderStudentSelect();
+}
+
+function addNote() {
+    const date = document.getElementById('noteDate').value;
+    const student = document.getElementById('studentSelect').value;
+    const status = document.getElementById('attendance').value;
+    const text = document.getElementById('noteText').value.trim();
+
+    if(!date || !student) return alert("Select date and student");
+
+    notes.push({date, student, status, text});
+    localStorage.setItem('notes', JSON.stringify(notes));
+
+    document.getElementById('noteText').value = '';
+    renderStudents();
+}
+
+function renderStudents() {
+    const tbody = document.getElementById('studentTable');
+    tbody.innerHTML = '';
+    students.forEach((s, i) => {
+        const studentNotes = notes.filter(n => n.student === s.name);
+        const latest = studentNotes.sort((a,b) => new Date(b.date) - new Date(a.date))[0];
+        const status = latest ? latest.status : '';
+        const noteText = latest ? latest.text : '';
+
+        const tr = document.createElement('tr');
+        if(status === 'absent') tr.classList.add('absent');
+        tr.innerHTML = `
+            <td>${s.name}</td>
+            <td>${status}</td>
+            <td>${noteText}</td>
+            <td><button onclick="removeStudent(${i})">Remove</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderStudentSelect() {
+    const select = document.getElementById('studentSelect');
+    select.innerHTML = '';
+    students.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s.name;
+        option.textContent = s.name;
+        select.appendChild(option);
+    });
+}
+
+renderStudents();
+renderStudentSelect();
+</script>
+
+</body>
+</html>
