@@ -46,7 +46,7 @@ h1 { font-size:18px; margin:0; color:var(--text); font-weight:700; display:flex;
 .time-label { background:var(--muted); padding:8px 6px; font-size:12px; color:#444; text-align:center; }
 .slot { padding:6px; min-height:46px; position:relative; cursor:pointer; }
 
-.event { display:block; padding:6px; border-radius:6px; margin-bottom:6px; font-size:12px; color:#000; background:#e6f7ff; white-space:pre-line; }
+.event { display:block; padding:6px; border-radius:6px; margin-bottom:6px; font-size:12px; color:#000; background:#e6f7ff !important; white-space:pre-line; }
 
 .meta { font-size:11px; color:#fff; opacity:0.9; margin-top:6px; }
 .small { font-size:12px; color:#444; }
@@ -98,13 +98,6 @@ input:checked + .slider:before { transform:translateX(20px); }
 <div id="dialogContainer" style="display: none;"></div>
 
 <script>
-// JavaScript is exactly the same as your original, except:
-// - Time range 9:00 AM to 6:30 PM
-// - Notes do not copy over when linked
-// - Event background light blue
-// - Absent/present checkbox green if off, red if on
-// All other functionality untouched
-
 const grid = document.getElementById('calendarGrid');
 const weekRange = document.getElementById('weekRange');
 const dialogContainer = document.getElementById('dialogContainer');
@@ -157,12 +150,21 @@ function renderCalendar(date){
         const dateKey=isoDate(d); const timeKey=formatTimeAMPM(h,m); const wkday=d.getDay();
         let shownEvents=[];
         if(linkedWeekdays[wkday] && templates[wkday] && templates[wkday][timeKey]){
-          shownEvents=templates[wkday][timeKey].map(e=>Object.assign({},e));
-          shownEvents.forEach(ev=>ev.note=''); // Notes do not copy over
+          // Copy template student/grade, but allow unique notes per actual date
+          const fullKey = `${dateKey}-${timeKey}`;
+          shownEvents = templates[wkday][timeKey].map(evTpl => {
+            const ev = Object.assign({}, evTpl);
+            if(events[fullKey]){
+              const dayEv = events[fullKey].find(e=>e.student===ev.student);
+              if(dayEv) ev.note = dayEv.note || '';
+            }
+            return ev;
+          });
         } else {
-          const fullKey=`${dateKey}-${timeKey}`;
+          const fullKey = `${dateKey}-${timeKey}`;
           shownEvents=(events[fullKey]||[]).map(e=>Object.assign({},e));
         }
+
         shownEvents.forEach((ev,idx)=>{
           const evEl=document.createElement('span'); evEl.className='event';
           evEl.textContent=`${ev.student} · ${ev.grade||''}`.trim() + (ev.note?`\n${ev.note}`:'');
@@ -250,9 +252,7 @@ function showDialog(title,onSave,onDelete,data={}){
 
 function closeDialog(){ dialogContainer.style.display='none'; dialogContainer.innerHTML=''; }
 
-document.getElementById('clearStorage').onclick=()=>{
-  if(confirm('Clear all saved events?')){ events={}; templates={}; linkedWeekdays={}; saveAll(); renderCalendar(currentDate);}
-};
+document.getElementById('clearStorage').onclick=()=>{ if(confirm('Clear all saved events?')){ events={}; templates={}; linkedWeekdays={}; saveAll(); renderCalendar(currentDate);} };
 document.getElementById('prevWeek').onclick=()=>{ currentDate.setDate(currentDate.getDate()-7); renderCalendar(currentDate); };
 document.getElementById('nextWeek').onclick=()=>{ currentDate.setDate(currentDate.getDate()+7); renderCalendar(currentDate); };
 
