@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en" crxlauncher="">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -50,8 +49,6 @@ h1 { font-size:18px; margin:0; color:var(--text); font-weight:700; }
 .slot.frozen { opacity:0.85; }
 
 .event { display:block; padding:6px; border-radius:6px; margin-bottom:6px; font-size:12px; color:#fff; white-space:pre-line; }
-.event.present { background:var(--accent); }
-.event.absent { background:var(--danger); }
 
 .meta { font-size:11px; color:#fff; opacity:0.9; margin-top:6px; }
 .small { font-size:12px; color:#444; }
@@ -66,7 +63,7 @@ textarea { min-height:80px; resize:vertical; }
 
 .switch { position:relative; display:inline-block; width:40px; height:20px; }
 .switch input { opacity:0; width:0; height:0; }
-.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#ccc; transition:.4s; border-radius:34px; }
+.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#28a745; transition:.4s; border-radius:34px; }
 .slider:before { position:absolute; content:""; height:14px; width:14px; left:3px; bottom:3px; background:white; transition:.4s; border-radius:50%; }
 input:checked + .slider { background:var(--danger); }
 input:checked + .slider:before { transform:translateX(20px); }
@@ -81,8 +78,16 @@ input:checked + .slider:before { transform:translateX(20px); }
 
 <div class="wrap">
   <div class="top">
-    <div class="title"><h1>Music Scheduler</h1></div>
-    <div class="controls"><button class="btn secondary" id="clearStorage">Clear All</button></div>
+    <div class="title">
+      <img src="logo.png" alt="Logo" style="height:24px;">
+      <h1>The Lebanese National High Conservatory Of Music</h1>
+    </div>
+    <div class="controls">
+      <button class="btn secondary" id="clearStorage">Clear All</button>
+      <span style="margin-left:12px; font-size:14px; font-weight:500; color:#333;">
+        Branch: Saida / Piano professor: Ghada Nahouli
+      </span>
+    </div>
   </div>
 
   <div class="calendar">
@@ -97,7 +102,7 @@ input:checked + .slider:before { transform:translateX(20px); }
   </div>
 </div>
 
-<div id="dialogContainer" style="display:none;"></div>
+<div id="dialogContainer" style="display: none;"></div>
 
 <script>
 const grid = document.getElementById('calendarGrid');
@@ -105,7 +110,7 @@ const weekRange = document.getElementById('weekRange');
 const dialogContainer = document.getElementById('dialogContainer');
 
 let currentDate = new Date(); currentDate.setHours(0,0,0,0);
-const startHour = 8, endHour = 19, slotStep = 30;
+const startHour = 9, endHour = 18, slotStep = 30;
 const EV_KEY='studentEvents_v1', TMP_KEY='weekdayTemplates_v1', LINK_KEY='linkedWeekdays_v1';
 
 let events = JSON.parse(localStorage.getItem(EV_KEY)) || {};
@@ -127,10 +132,8 @@ function renderCalendar(date){
   const startOfWeek=getWeekStart(date); const days=[];
   for(let i=0;i<7;i++){ const dd=new Date(startOfWeek); dd.setDate(dd.getDate()+i); days.push(dd); }
 
-  // top-left
   const tl=document.createElement('div'); tl.className='cell top-left'; grid.appendChild(tl);
 
-  // day headers
   days.forEach((d,i)=>{
     const cell=document.createElement('div'); cell.className='day-header cell';
     const weekdayIndex=d.getDay();
@@ -154,13 +157,14 @@ function renderCalendar(date){
         const dateKey=isoDate(d); const timeKey=formatTimeAMPM(h,m); const wkday=d.getDay();
         let shownEvents=[];
         if(linkedWeekdays[wkday] && templates[wkday] && templates[wkday][timeKey]){
-          shownEvents=templates[wkday][timeKey].map(e=>Object.assign({},e));
+          // do not copy notes when linked
+          shownEvents=templates[wkday][timeKey].map(e=>({student:e.student, grade:e.grade, absent:e.absent}));
         } else {
           const fullKey=`${dateKey}-${timeKey}`;
           shownEvents=(events[fullKey]||[]).map(e=>Object.assign({},e));
         }
         shownEvents.forEach((ev,idx)=>{
-          const evEl=document.createElement('span'); evEl.className='event '+(ev.absent?'absent':'present');
+          const evEl=document.createElement('span'); evEl.className='event'; // removed absent color
           evEl.textContent=`${ev.student} · ${ev.grade||''}`.trim() + (ev.note?`\n${ev.note}`:'');
           evEl.addEventListener('click',(e)=>{ e.stopPropagation(); openEditDialog({date:d,time:timeKey,index:idx,weekday:wkday,linked:!!linkedWeekdays[wkday]}); });
           slot.appendChild(evEl);
@@ -254,6 +258,5 @@ document.getElementById('nextWeek').onclick=()=>{ currentDate.setDate(currentDat
 
 renderCalendar(currentDate);
 </script>
-
 </body>
 </html>
