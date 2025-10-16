@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Student Scheduler — Linked Weekdays</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+  :root{
+    --accent:#0078d4;
+    --muted:#f3f2f1;
+    --card:#ffffff;
+    --text:#222;
+    --danger:#ff4c4c;
+    --ok:#28a745;
+  }
+  *{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,SegoeUI,Roboto,"Helvetica Neue",Arial;}
+  body{margin:0;background:linear-gradient(180deg,#f5f6f8 0,#f3f4f6 100%);padding:24px;display:flex;justify-content:center}
+  .wrap{width:100%;max-width:1150px}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .title{display:flex;gap:12px;align-items:center}
+  h1{font-size:18px;margin:0;color:var(--text);font-weight:700}
+  .controls{display:flex;gap:8px;align-items:center}
+  .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+  .calendar{background:var(--card);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08);overflow:hidden}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,var(--accent),#006bb3);color:#fff}
+  .week-range{font-weight:600}
+  .nav{display:flex;gap:8px;align-items:center}
+  .nav .icon{background:rgba(255,255,255,0.12);border-radius:8px;padding:6px 8px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:80px repeat(7,1fr)}
+  .cell{border-bottom:1px solid #eee;border-right:1px solid #eee;padding:8px;min-height:46px;display:flex;align-items:flex-start}
+  .top-left{background:var(--muted);border-right:1px solid #eee}
+  .day-header{background:var(--muted);padding:10px 8px;text-align:center;font-weight:600;position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .day-name{font-size:13px;color:#333}
+  .day-date{font-size:12px;color:#666}
+  .link-btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px;cursor:pointer;font-weight:700}
+  .link-btn.linked{background:#fff;color:var(--accent);border-color:rgba(0,0,0,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+  .time-label{background:var(--muted);padding:8px 6px;font-size:12px;color:#444;text-align:center}
+  .slot{padding:6px;min-height:46px;position:relative;cursor:pointer}
+  .slot:hover{background:#fafafa}
+  .slot.frozen{opacity:0.85}
+  .event{display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#fff;white-space:pre-line}
+  .event.present{background:var(--accent)}
+  .event.absent{background:var(--danger)}
+  .meta{font-size:11px;color:#fff;opacity:0.9;margin-top:6px}
+  .small{font-size:12px;color:#444}
+  /* dialog styling */
+  .dialog-back{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:60}
+  .dialog{background:#fff;padding:14px;border-radius:10px;min-width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
+  .form-row{display:flex;gap:8px;margin:8px 0}
+  input,textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;font-size:13px}
+  textarea{min-height:80px;resize:vertical}
+  .row-right{display:flex;gap:8px;justify-content:flex-end}
+  .muted{color:#666;font-size:13px}
+  @media (max-width:900px){
+    .grid{grid-template-columns:60px repeat(7, minmax(80px,1fr))}
+    .title h1{font-size:15px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="title">
+      <h1>Student Scheduler</h1>
+      <div class="muted">Half-hour slots · Toggle weekday linking (syncs to all same weekdays)</div>
+    </div>
+    <div class="controls">
+      <button class="btn secondary" id="clearStorage">Clear All (localStorage)</button>
+    </div>
+  </div>
+
+  <div class="calendar">
+    <div class="header">
+      <div class="week-range" id="weekRange">Week</div>
+      <div class="nav">
+        <div class="icon" id="prevWeek" title="Previous week">◀</div>
+        <div class="icon" id="nextWeek" title="Next week">▶</div>
+      </div>
+    </div>
+
+    <div class="grid" id="calendarGrid">
+      <!-- built by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Dialogs -->
+<div id="dialogContainer" style="display:none;"></div>
+
+<script>
+/*  Student Scheduler with weekday templates (linked toggles)
+    - half-hour slots 08:00 - 20:30
+    - linking a weekday: create/overwrite template from current day's data, and set linked flag
+    - when linked: template displays on every same weekday; editing updates the template and reflects everywhere
+    - unlinking: stops future sync; template remains copied into currently-visible week's dates so data not lost
+    - persistence: localStorage: studentEvents, templates, linkedWeekdays
+*/
+
+const grid = document.getElementById('calendarGrid');
+const weekRange = document.getElementById('weekRange');
+const dialogContainer = document.getElementById('dialogContainer');
+
+let currentDate = new Date(); // default starting date (we will adjust to monday)
+currentDate.setHours(0,0,0,0);
+const startHour = 8;
+const endHour = 20;
+const slotStep = 30; // minutes
+
+// storage keys
+const EV_KEY = 'studentEvents_v1';      // per-date events: { "YYYY-MM-DD-HH:MM": [ {...}, ... ] }
+const TMP_KEY = 'weekdayTemplates_v1';  // templates by weekday index 0(Sun)-6: { 1: { "08:00":[...], ... }, ... }
+const LINK_KEY = 'linkedWeekdays_v1';   // { "1": true, "2": false, ... }
+
+let events = JSON.parse(localStorage.getItem(EV_KEY)) || {};
+let templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {};  // store weekdayIndex -> {time: [events]}
+let linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {}; // weekdayIndex -> bool
+
+function saveAll(){
+  localStorage.setItem(EV_KEY, JSON.stringify(events));
+  localStorage.setItem(TMP_KEY, JSON.stringify(templates));
+  localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
+}
+
+/* Helpers */
+function isoDate(d){
+  const y=d.getFullYear(),m=(d.getMonth()+1).toString().padStart(2,'0'),day=d.getDate().toString().padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function formatTime(h,m){ return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`; }
+function getWeekStart(date){ // Monday as start
+  const d = new Date(date);
+  const day = d.getDay(); // 0 sun ... 1 mon
+  const diff = (day === 0) ? -6 : 1 - day; // move to monday
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+/* Build grid */
+function renderCalendar(date){
+  grid.innerHTML = '';
+  const startOfWeek = getWeekStart(date);
+  const days = [];
+  for(let i=0;i<7;i++){ const dd = new Date(startOfWeek); dd.setDate(dd.getDate()+i); days.push(dd); }
+
+  // header top-left
+  const tl = document.createElement('div'); tl.className='cell top-left';
+  grid.appendChild(tl);
+
+  // day headers (with toggle link button)
+  days.forEach((d,i)=>{
+    const cell = document.createElement('div'); cell.className='day-header cell';
+    const weekdayIndex = d.getDay(); // 0..6
+    const dayName = d.toLocaleDateString(undefined,{weekday:'short'});
+    const dateShort = d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    const name = document.createElement('div'); name.className='day-name'; name.textContent = dayName;
+    const dt = document.createElement('div'); dt.className='day-date'; dt.textContent = dateShort;
+    const btn = document.createElement('button'); btn.className='link-btn';
+    if(linkedWeekdays[weekdayIndex]) btn.classList.add('linked');
+    btn.textContent = linkedWeekdays[weekdayIndex] ? '🔗 Linked' : 'Link ✅';
+    btn.title = linkedWeekdays[weekdayIndex] ? 'Click to unlink this weekday' : 'Click to link this weekday (apply current day to all same weekdays)';
+
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      toggleLinkForWeekday(weekdayIndex, d);
+    });
+
+    cell.appendChild(name); cell.appendChild(dt); cell.appendChild(btn);
+    grid.appendChild(cell);
+  });
+
+  // times and slots
+  for(let h=startHour; h<=endHour; h++){
+    for(let m=0; m<60; m+=slotStep){
+      // time label
+      const tlbl = document.createElement('div'); tlbl.className='time-label cell';
+      tlbl.textContent = formatTime(h,m);
+      grid.appendChild(tlbl);
+
+      // slots for each day
+      days.forEach((d)=>{
+        const slot = document.createElement('div'); slot.className='slot cell';
+        const dateKey = isoDate(d);
+        const timeKey = formatTime(h,m);
+        const wkday = d.getDay();
+
+        // If weekday is linked AND template exists -> show template events for that time
+        let shownEvents = [];
+        if(linkedWeekdays[wkday] && templates[wkday] && templates[wkday][timeKey]){
+          // use template copy (clone) so edits don't mutate directly until saved
+          shownEvents = templates[wkday][timeKey].map(e=>Object.assign({}, e));
+        } else {
+          const fullKey = `${dateKey}-${timeKey}`;
+          shownEvents = (events[fullKey] || []).map(e=>Object.assign({}, e));
+        }
+
+        // render events
+        shownEvents.forEach((ev, idx) => {
+          const evEl = document.createElement('span');
+          evEl.className = 'event ' + (ev.absent ? 'absent' : 'present');
+          evEl.textContent = `${ev.student} · ${ev.grade || ''}`.trim() + (ev.note ? `\n${ev.note}` : '');
+          evEl.addEventListener('click',(e)=>{ e.stopPropagation(); openEditDialog({date:d,time:timeKey,index:idx,weekday:wkday,linked:!!linkedWeekdays[wkday]}); });
+          slot.appendChild(evEl);
+        });
+
+        // click to add (or edit if linked use template)
+        slot.addEventListener('click',()=> openAddDialog({date:d,time:timeKey,weekday:wkday,linked:!!linkedWeekdays[wkday]}));
+
+        grid.appendChild(slot);
+      });
+    }
+  }
+
+  // update week range text
+  const start = days[0], end = days[6];
+  weekRange.textContent = `${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric', year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
+}
+
+/* Toggle linking: link/unlink weekday
+   Behavior:
+   - If currently unlinked -> create/overwrite template from the currently-visible week's day (use the date passed)
+     and set linked flag true. The template becomes authoritative for that weekday across all weeks (render uses it).
+   - If currently linked -> set linked flag false (unlink). Also copy the template's content into the currently-visible week's dates
+     so you don't lose the visible data (the week's shown Mondays will keep that content but future edits won't sync).
+*/
+function toggleLinkForWeekday(weekdayIndex, referenceDate){
+  const wasLinked = !!linkedWeekdays[weekdayIndex];
+  if(!wasLinked){
+    // build template from referenceDate's events across all times
+    const tpl = {};
+    for(let h=startHour; h<=endHour; h++){
+      for(let m=0;m<60;m+=slotStep){
+        const timeKey = formatTime(h,m);
+        const fullKey = `${isoDate(referenceDate)}-${timeKey}`;
+        if(events[fullKey] && events[fullKey].length){
+          // deep copy
+          tpl[timeKey] = events[fullKey].map(ev => ({student:ev.student, grade:ev.grade, absent:ev.absent, note:ev.note}));
+        }
+      }
+    }
+    templates[weekdayIndex] = tpl;
+    linkedWeekdays[weekdayIndex] = true;
+    saveAll();
+    renderCalendar(currentDate);
+    return;
+  } else {
+    // unlink: simply turn off link, but copy template into currently visible week's dates (so content persists)
+    linkedWeekdays[weekdayIndex] = false;
+    // copy template into currently rendered week days that match weekdayIndex
+    const startOfWeek = getWeekStart(currentDate);
+    for(let i=0;i<7;i++){
+      const d = new Date(startOfWeek); d.setDate(d.getDate()+i);
+      if(d.getDay() !== weekdayIndex) continue;
+      const dateKey = isoDate(d);
+      const tpl = templates[weekdayIndex] || {};
+      for(const timeKey in tpl){
+        const fullKey = `${dateKey}-${timeKey}`;
+        // copy template events into per-date events (deep copy)
+        events[fullKey] = tpl[timeKey].map(ev => ({student:ev.student, grade:ev.grade, absent:ev.absent, note:ev.note}));
+      }
+    }
+    saveAll();
+    renderCalendar(currentDate);
+    return;
+  }
+}
+
+/* Dialogs for add/edit */
+function openAddDialog({date,time,weekday,linked}){
+  showDialog({
+    title: `Add student — ${date.toLocaleDateString()} ${time}`,
+    student:'',
+    grade:'',
+    absent:false,
+    note:'',
+    onSubmit: (vals) => {
+      if(linked){
+        // apply to template for weekday
+        if(!templates[weekday]) templates[weekday] = {};
+        if(!templates[weekday][time]) templates[weekday][time] = [];
+        templates[weekday][time].push({student:vals.student, grade:vals.grade, absent:vals.absent, note:vals.note});
+      } else {
+        const fullKey = `${isoDate(date)}-${time}`;
+        if(!events[fullKey]) events[fullKey] = [];
+        events[fullKey].push({student:vals.student, grade:vals.grade, absent:vals.absent, note:vals.note});
+      }
+      saveAll();
+      renderCalendar(currentDate);
+    }
+  });
+}
+
+function openEditDialog({date,time,index,weekday,linked}){
+  // get event
+  let evData;
+  if(linked){
+    evData = templates[weekday] && templates[weekday][time] && templates[weekday][time][index];
+  } else {
+    const fullKey = `${isoDate(date)}-${time}`;
+    evData = events[fullKey] && events[fullKey][index];
+  }
+  if(!evData) return;
+
+  showDialog({
+    title: `Edit student — ${date.toLocaleDateString()} ${time}`,
+    student:evData.student,
+    grade:evData.grade || '',
+    absent:!!evData.absent,
+    note:evData.note || '',
+    onSubmit: (vals) => {
+      if(linked){
+        templates[weekday][time][index] = {student:vals.student, grade:vals.grade, absent:vals.absent, note:vals.note};
+      } else {
+        const fullKey = `${isoDate(date)}-${time}`;
+        events[fullKey][index] = {student:vals.student, grade:vals.grade, absent:vals.absent, note:vals.note};
+      }
+      saveAll();
+      renderCalendar(currentDate);
+    },
+    onDelete: () => {
+      if(linked){
+        templates[weekday][time].splice(index,1);
+        if(templates[weekday][time].length === 0) delete templates[weekday][time];
+      } else {
+        const fullKey = `${isoDate(date)}-${time}`;
+        events[fullKey].splice(index,1);
+        if(events[fullKey].length === 0) delete events[fullKey];
+      }
+      saveAll();
+      renderCalendar(currentDate);
+    }
+  });
+}
+
+/* Generic dialog UI */
+function showDialog({title, student, grade, absent, note, onSubmit, onDelete}){
+  dialogContainer.innerHTML = '';
+  dialogContainer.style.display = 'block';
+  const back = document.createElement('div'); back.className='dialog-back';
+  const dlg = document.createElement('div'); dlg.className='dialog';
+  const h = document.createElement('div'); h.style.fontWeight=700; h.textContent = title;
+  dlg.appendChild(h);
+
+  const sRow = document.createElement('div'); sRow.className='form-row';
+  const sInput = document.createElement('input'); sInput.placeholder='Student name'; sInput.value = student || '';
+  sRow.appendChild(sInput);
+  dlg.appendChild(sRow);
+
+  const gRow = document.createElement('div'); gRow.className='form-row';
+  const gInput = document.createElement('input'); gInput.placeholder='Grade (optional)'; gInput.value = grade || '';
+  gRow.appendChild(gInput);
+  dlg.appendChild(gRow);
+
+  const aRow = document.createElement('div'); aRow.style.marginTop='6px';
+  const chk = document.createElement('input'); chk.type='checkbox'; chk.checked = !!absent; chk.id = 'absentChk';
+  const lbl = document.createElement('label'); lbl.htmlFor='absentChk'; lbl.style.marginLeft='8px'; lbl.textContent='Absent? (checked = Absent)';
+  aRow.appendChild(chk); aRow.appendChild(lbl);
+  dlg.appendChild(aRow);
+
+  const nRow = document.createElement('div'); nRow.className='form-row';
+  const nInput = document.createElement('textarea'); nInput.placeholder='Note'; nInput.value = note || '';
+  nRow.appendChild(nInput);
+  dlg.appendChild(nRow);
+
+  const rowEnd = document.createElement('div'); rowEnd.className='row-right';
+  const cancelBtn = document.createElement('button'); cancelBtn.className='btn secondary'; cancelBtn.textContent='Cancel';
+  cancelBtn.addEventListener('click', closeDialog);
+  rowEnd.appendChild(cancelBtn);
+
+  if(onDelete){
+    const delBtn = document.createElement('button'); delBtn.className='btn secondary'; delBtn.style.background='var(--danger)'; delBtn.style.color='#fff';
+    delBtn.textContent='Delete';
+    delBtn.addEventListener('click', ()=>{
+      if(confirm('Delete this entry?')){ onDelete(); closeDialog(); }
+    });
+    rowEnd.appendChild(delBtn);
+  }
+
+  const saveBtn = document.createElement('button'); saveBtn.className='btn'; saveBtn.textContent='Save';
+  saveBtn.addEventListener('click', ()=>{
+    const vals = { student: sInput.value.trim(), grade: gInput.value.trim(), absent: chk.checked, note: nInput.value.trim() };
+    if(!vals.student){ alert('Student name required'); return; }
+    onSubmit(vals);
+    closeDialog();
+  });
+  rowEnd.appendChild(saveBtn);
+
+  dlg.appendChild(rowEnd);
+  back.appendChild(dlg);
+  dialogContainer.appendChild(back);
+
+  back.addEventListener('click',(e)=>{ if(e.target === back) closeDialog(); });
+
+  function closeDialog(){ dialogContainer.innerHTML=''; dialogContainer.style.display='none'; }
+}
+
+/* Navigation and other controls */
+document.getElementById('prevWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate() - 7);
+  renderCalendar(currentDate);
+});
+document.getElementById('nextWeek').addEventListener('click', ()=>{
+  currentDate.setDate(currentDate.getDate() + 7);
+  renderCalendar(currentDate);
+});
+document.getElementById('clearStorage').addEventListener('click', ()=>{
+  if(confirm('Clear ALL saved data (events, templates, links) from localStorage?')) {
+    localStorage.removeItem(EV_KEY); localStorage.removeItem(TMP_KEY); localStorage.removeItem(LINK_KEY);
+    events = {}; templates = {}; linkedWeekdays = {};
+    renderCalendar(currentDate);
+  }
+});
+
+/* initial render */
+renderCalendar(currentDate);
+</script>
+</body>
+</html>
