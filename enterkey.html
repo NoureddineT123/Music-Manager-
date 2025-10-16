@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protected Page</title>
+<style>
+  body { display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif; background:#f0f0f0; }
+  #login { display:flex; flex-direction:column; gap:10px; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <input type="password" id="keyInput" placeholder="Enter secret key">
+  <button id="unlockBtn">Unlock</button>
+  <p id="status" style="color:red;"></p>
+</div>
+
+<script>
+const SECRET_KEY = "gngn";
+const REDIRECT_URL = "https://noureddinet123.github.io/Music-Manager-/";
+
+const keyInput = document.getElementById("keyInput");
+const unlockBtn = document.getElementById("unlockBtn");
+const status = document.getElementById("status");
+
+unlockBtn.onclick = () => {
+  if(keyInput.value === SECRET_KEY){
+    window.location.href = REDIRECT_URL;
+  } else {
+    status.textContent = "Wrong key ❌";
+  }
+};
+
+// Optional: allow pressing Enter to unlock
+keyInput.addEventListener("keypress", (e) => {
+  if(e.key === "Enter") unlockBtn.click();
+});
+</script>
+
+</body>
+</html>
