@@ -1,85 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Student Scheduler</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
-:root{
-  --accent:#0078d4;
-  --muted:#f3f2f1;
-  --card:#ffffff;
-  --text:#222;
-  --danger:#ff4c4c;
-  --ok:#28a745;
-}
-*{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,SegoeUI,Roboto,"Helvetica Neue",Arial;}
-body{margin:0;background:linear-gradient(180deg,#f5f6f8 0,#f3f4f6 100%);padding:24px;display:flex;justify-content:center;}
-.wrap{width:100%;max-width:1150px}
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.title{display:flex;gap:12px;align-items:center}
-h1{font-size:18px;margin:0;color:var(--text);font-weight:700}
-.controls{display:flex;gap:8px;align-items:center}
-.btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
-.btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
-.calendar{background:var(--card);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08);overflow:hidden}
-.header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,var(--accent),#006bb3);color:#fff}
-.week-range{font-weight:600}
-.nav{display:flex;gap:8px;align-items:center}
-.nav .icon{background:rgba(255,255,255,0.12);border-radius:8px;padding:6px 8px;cursor:pointer}
-.grid{display:grid;grid-template-columns:80px repeat(7,1fr)}
-.cell{border-bottom:1px solid #eee;border-right:1px solid #eee;padding:8px;min-height:46px;display:flex;align-items:flex-start}
-.top-left{background:var(--muted);border-right:1px solid #eee}
-.day-header{background:var(--muted);padding:10px 8px;text-align:center;font-weight:600;position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}
-.day-name{font-size:13px;color:#333}
-.day-date{font-size:12px;color:#666}
-.link-btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px;cursor:pointer;font-weight:700}
-.link-btn.linked{background:#fff;color:var(--accent);border-color:rgba(0,0,0,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-.time-label{background:var(--muted);padding:8px 6px;font-size:12px;color:#444;text-align:center}
-.slot{padding:6px;min-height:46px;position:relative;cursor:pointer}
-.slot:hover{background:#fafafa}
-.event{display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#444;white-space:pre-line}
-.event.present{background:var(--accent)}
-.event.absent{background:var(--danger)}
-.meta{font-size:11px;color:#fff;opacity:0.9;margin-top:6px}
-.small{font-size:12px;color:#444}
-/* dialog styling */
-.dialog-back{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:60}
-.dialog{background:#fff;padding:24px;border-radius:12px;min-width:320px;max-width:400px;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
-.form-row{display:flex;flex-direction:column;gap:6px;margin:8px 0}
-input,textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;font-size:13px}
-textarea{min-height:80px;resize:vertical}
-.row-right{display:flex;gap:8px;justify-content:flex-end}
-.muted{color:#666;font-size:13px}
-/* custom absent checkbox */
-.checkbox-container{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.checkbox-container input{width:16px;height:16px;margin:0;cursor:pointer;accent:#ff4c4c;}
-@media (max-width:900px){
-  .grid{grid-template-columns:60px repeat(7, minmax(80px,1fr))}
-  .title h1{font-size:15px}
-}
+  @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+
+  :root{
+    --accent:#0078d4;
+    --muted:#f3f3f3;
+    --card:#ffffff;
+    --text:#222;
+    --danger:#ff4c4c;
+    --ok:#28a745;
+    --bg-overlay:rgba(0,0,0,0.5);
+  }
+
+  *{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,SegoeUI,Roboto,"Helvetica Neue",Arial;}
+  body{margin:0;background:linear-gradient(180deg,#f5f6f8 0,#f3f4f6 100%);padding:24px;display:flex;justify-content:center;}
+
+  .wrap{width:100%;max-width:1150px;}
+
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .title{display:flex;gap:12px;align-items:center;}
+  h1{font-size:18px;margin:0;color:var(--text);font-weight:700;display:flex;align-items:center;gap:8px;}
+  .controls{display:flex;gap:8px;align-items:center;}
+  .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;}
+  .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06);}
+
+  .calendar{background:var(--card);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08);overflow:hidden;}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,var(--accent),#006bb3);color:#fff;}
+  .week-range{font-weight:600;}
+  .nav{display:flex;gap:8px;align-items:center;}
+  .nav .icon{background:rgba(255,255,255,0.12);border-radius:8px;padding:6px 8px;cursor:pointer;}
+
+  .grid{display:grid;grid-template-columns:80px repeat(7,1fr);}
+  .cell{border-bottom:1px solid #eee;border-right:1px solid #eee;padding:8px;min-height:46px;display:flex;align-items:flex-start;}
+  .top-left{background:var(--muted);border-right:1px solid #eee;}
+  .day-header{background:var(--muted);padding:10px 8px;text-align:center;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .day-name{font-size:13px;color:#333;}
+  .day-date{font-size:12px;color:#666;}
+  .link-btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px;cursor:pointer;font-weight:700;}
+  .link-btn.linked{background:#fff;color:var(--accent);border-color:rgba(0,0,0,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+
+  .time-label{background:var(--muted);padding:8px 6px;font-size:12px;color:#444;text-align:center;}
+  .slot{padding:6px;min-height:46px;position:relative;cursor:pointer;}
+
+  /* event styles */
+  .event{
+    display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#000;
+    background:#e6f7ff !important; /* light blue for present/default */
+    white-space:pre-line;
+  }
+  .event.absent{
+    background:#ffd6d6 !important; /* very light red when absent */
+  }
+
+  .meta{font-size:11px;color:#fff;opacity:0.9;margin-top:6px;}
+  .small{font-size:12px;color:#444;}
+
+  .dialog-back{position:fixed;inset:0;background:var(--bg-overlay);display:flex;align-items:center;justify-content:center;z-index:60;}
+  .dialog{background:#fff;padding:20px;border-radius:10px;min-width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.25);}
+
+  .form-row{display:flex;gap:8px;margin:8px 0;flex-direction:column;}
+  input,textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;font-size:13px;}
+  textarea{min-height:80px;resize:vertical;}
+  .row-right{display:flex;gap:8px;justify-content:flex-end;}
+
+  /* small switch - green when off, red when on */
+  .switch{position:relative;display:inline-block;width:40px;height:20px;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#28a745;transition:.4s;border-radius:34px;}
+  .slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background:white;transition:.4s;border-radius:50%;}
+  .switch input:checked + .slider{background:#ff4c4c;}
+  .switch input:checked + .slider:before{transform:translateX(20px);}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:60px repeat(7, minmax(80px,1fr));}
+    .title h1{font-size:15px;}
+  }
 </style>
 </head>
 <body>
+
 <div class="wrap">
   <div class="top">
     <div class="title">
-      <h1>Music Manager</h1>
+      <h1><img src="logo.png" alt="Logo" style="height:24px;"> The Lebanese National High Conservatory Of Music</h1>
     </div>
+
     <div class="controls">
+      <span style="margin-left:12px;font-weight:500;color:#333;">Branch: Saida / Piano professor: Ghada Nahouli</span>
       <button class="btn secondary" id="clearStorage">Clear All</button>
     </div>
   </div>
 
   <div class="calendar">
     <div class="header">
-      <div class="week-range" id="weekRange">Oct 13 — Oct 19</div>
+      <div class="week-range" id="weekRange">—</div>
       <div class="nav">
-        <div class="icon" id="prevWeek" title="Previous week">◀</div>
-        <div class="icon" id="nextWeek" title="Next week">▶</div>
+        <div class="icon" id="prevWeek">◀</div>
+        <div class="icon" id="nextWeek">▶</div>
       </div>
     </div>
+
     <div class="grid" id="calendarGrid"></div>
   </div>
 </div>
@@ -87,173 +112,300 @@ textarea{min-height:80px;resize:vertical}
 <div id="dialogContainer" style="display:none;"></div>
 
 <script>
+/* ========================
+   Scheduler (localStorage)
+   ======================== */
+
 const grid = document.getElementById('calendarGrid');
 const weekRange = document.getElementById('weekRange');
 const dialogContainer = document.getElementById('dialogContainer');
 
-let currentDate = new Date();
-currentDate.setHours(0,0,0,0);
-const startHour = 8;
-const endHour = 19; 
-const slotStep = 30; 
+let currentDate = new Date(); currentDate.setHours(0,0,0,0);
+const startHour = 9, endHour = 18, slotStep = 30;
+const EV_KEY = 'studentEvents_v_local_v1';
+const TMP_KEY = 'weekdayTemplates_v_local_v1';
+const LINK_KEY = 'linkedWeekdays_v_local_v1';
 
-const EV_KEY = 'studentEvents_v2';
-const TMP_KEY = 'weekdayTemplates_v2';
-const LINK_KEY = 'linkedWeekdays_v2';
+/* Try to load from localStorage safely */
+let events = {};
+let templates = {};
+let linkedWeekdays = {};
 
-let events = JSON.parse(localStorage.getItem(EV_KEY)) || {};
-let templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {};
-let linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {};
+try {
+  events = JSON.parse(localStorage.getItem(EV_KEY)) || {};
+} catch(e){ events = {}; }
+try {
+  templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {};
+} catch(e){ templates = {}; }
+try {
+  linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {};
+} catch(e){ linkedWeekdays = {}; }
 
 function saveAll(){
-  localStorage.setItem(EV_KEY, JSON.stringify(events));
-  localStorage.setItem(TMP_KEY, JSON.stringify(templates));
-  localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
+  try {
+    localStorage.setItem(EV_KEY, JSON.stringify(events));
+    localStorage.setItem(TMP_KEY, JSON.stringify(templates));
+    localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
+  } catch(e){
+    console.error('Failed to save to localStorage', e);
+  }
 }
 
-function isoDate(d){ const y=d.getFullYear(), m=(d.getMonth()+1).toString().padStart(2,'0'), day=d.getDate().toString().padStart(2,'0'); return `${y}-${m}-${day}`; }
-function formatTimeAMPM(h,m){ const ampm=h>=12?'PM':'AM'; const hr=h>12?h-12:h===0?12:h; return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`; }
-function getWeekStart(date){ const d = new Date(date); const day = d.getDay(); const diff = (day===0)?-6:1-day; d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d; }
+/* Helpers */
+function isoDate(d){
+  const y=d.getFullYear();
+  const m=(d.getMonth()+1).toString().padStart(2,'0');
+  const day=d.getDate().toString().padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function formatTimeAMPM(h,m){
+  const ampm = h>=12 ? 'PM' : 'AM';
+  const hr = h>12 ? h-12 : (h===0 ? 12 : h);
+  return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+function getWeekStart(date){
+  const d=new Date(date);
+  const day=d.getDay();
+  const diff = day===0 ? -6 : 1-day; // monday as start
+  d.setDate(d.getDate()+diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
 
+/* Render calendar */
 function renderCalendar(date){
   grid.innerHTML = '';
   const startOfWeek = getWeekStart(date);
   const days = [];
-  for(let i=0;i<7;i++){ const dd = new Date(startOfWeek); dd.setDate(dd.getDate()+i); days.push(dd); }
+  for(let i=0;i<7;i++){
+    const dd = new Date(startOfWeek);
+    dd.setDate(dd.getDate()+i);
+    days.push(dd);
+  }
 
-  // top-left
-  const tl = document.createElement('div'); tl.className='cell top-left'; grid.appendChild(tl);
+  // top-left corner
+  const tl = document.createElement('div'); tl.className = 'cell top-left';
+  grid.appendChild(tl);
 
   // day headers
-  days.forEach((d,i)=>{
-    const cell = document.createElement('div'); cell.className='day-header cell';
+  days.forEach(d=>{
+    const cell = document.createElement('div'); cell.className = 'day-header cell';
     const weekdayIndex = d.getDay();
     const dayName = d.toLocaleDateString(undefined,{weekday:'short'});
     const dateShort = d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-    const name = document.createElement('div'); name.className='day-name'; name.textContent=dayName;
-    const dt = document.createElement('div'); dt.className='day-date'; dt.textContent=dateShort;
+    const name = document.createElement('div'); name.className='day-name'; name.textContent = dayName;
+    const dt = document.createElement('div'); dt.className='day-date'; dt.textContent = dateShort;
     const btn = document.createElement('button'); btn.className='link-btn';
     if(linkedWeekdays[weekdayIndex]) btn.classList.add('linked');
     btn.textContent = linkedWeekdays[weekdayIndex] ? '🔗 Linked' : 'Link ✅';
-    btn.title = linkedWeekdays[weekdayIndex] ? 'Click to unlink this weekday' : 'Click to link this weekday';
-    btn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleLinkForWeekday(weekdayIndex,d); });
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      toggleLinkForWeekday(weekdayIndex, d);
+    });
     cell.appendChild(name); cell.appendChild(dt); cell.appendChild(btn);
     grid.appendChild(cell);
   });
 
-  // time slots
-  for(let h=startHour; h<=endHour; h++){
-    for(let m=0; m<60; m+=slotStep){
-      const tlbl = document.createElement('div'); tlbl.className='time-label cell'; tlbl.textContent=formatTimeAMPM(h,m);
+  // timeslots
+  for(let h = startHour; h <= endHour; h++){
+    for(let m = 0; m < 60; m += slotStep){
+      const tlbl = document.createElement('div'); tlbl.className = 'time-label cell';
+      tlbl.textContent = formatTimeAMPM(h,m);
       grid.appendChild(tlbl);
-      days.forEach((d)=>{
-        const slot = document.createElement('div'); slot.className='slot cell';
-        const dateKey = isoDate(d); const timeKey = formatTimeAMPM(h,m); const wkday = d.getDay();
-        let shownEvents=[];
-        if(linkedWeekdays[wkday] && templates[wkday] && templates[wkday][timeKey]){
-          shownEvents = templates[wkday][timeKey].map(e=>Object.assign({}, e));
+
+      days.forEach(d=>{
+        const slot = document.createElement('div'); slot.className = 'slot cell';
+        const dateKey = isoDate(d);
+        const timeKey = formatTimeAMPM(h,m);
+        const wkday = d.getDay();
+        const fullKey = `${dateKey}-${timeKey}`;
+
+        // ensure events[fullKey] exists
+        if(!Array.isArray(events[fullKey])) events[fullKey] = [];
+
+        let shownEvents = [];
+
+        if(linkedWeekdays[wkday] && templates[wkday] && Array.isArray(templates[wkday][timeKey])){
+          // For linked weekdays: ensure event entries exist for that date for each template student,
+          // but do NOT copy notes — notes remain per date.
+          templates[wkday][timeKey].forEach(tpl => {
+            let existing = events[fullKey].find(e => e.student === tpl.student);
+            if(!existing){
+              existing = { student: tpl.student, grade: tpl.grade || '', note: '', absent: false };
+              events[fullKey].push(existing);
+            } else {
+              // keep existing.note and existing.absent as they are per-date
+            }
+            shownEvents.push(existing);
+          });
         } else {
-          const fullKey=`${dateKey}-${timeKey}`;
-          shownEvents = (events[fullKey]||[]).map(e=>Object.assign({},e));
+          shownEvents = [...events[fullKey]];
         }
+
+        // create visuals
         shownEvents.forEach((ev, idx)=>{
-          const evEl=document.createElement('span');
-          evEl.className='event '+(ev.absent?'absent':'present');
-          evEl.textContent=`${ev.student}${ev.grade? ' · '+ev.grade:''}` + (ev.note?`\n${ev.note}`:'');
-          evEl.addEventListener('click',(e)=>{ e.stopPropagation(); openEditDialog({date:d,time:timeKey,index:idx,weekday:wkday,linked:!!linkedWeekdays[wkday]}); });
+          const evEl = document.createElement('span');
+          evEl.className = 'event' + (ev.absent ? ' absent' : '');
+          const gradePart = ev.grade ? (' · ' + ev.grade) : '';
+          evEl.textContent = `${ev.student}${gradePart}` + (ev.note ? `\n${ev.note}` : '');
+          evEl.addEventListener('click', e=>{
+            e.stopPropagation();
+            openEditDialog({ date: d, time: timeKey, index: idx });
+          });
           slot.appendChild(evEl);
         });
-        slot.addEventListener('click',()=> openAddDialog({date:d,time:timeKey,weekday:wkday,linked:!!linkedWeekdays[wkday]}));
+
+        slot.addEventListener('click', ()=> openAddDialog({ date: d, time: timeKey }));
         grid.appendChild(slot);
       });
     }
   }
-  const start=days[0], end=days[6];
-  weekRange.textContent=`${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
+
+  const start = days[0], end = days[6];
+  weekRange.textContent = `${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
+
+  saveAll();
 }
 
+/* Toggle link for a weekday: create templates from a reference date's events (student+grade only) */
 function toggleLinkForWeekday(weekdayIndex, referenceDate){
-  const wasLinked=!!linkedWeekdays[weekdayIndex];
+  const wasLinked = !!linkedWeekdays[weekdayIndex];
+
   if(!wasLinked){
-    const tpl={};
-    for(let h=startHour; h<=endHour; h++){
-      for(let m=0;m<60;m+=slotStep){
-        const timeKey=formatTimeAMPM(h,m); const fullKey=`${isoDate(referenceDate)}-${timeKey}`;
-        if(events[fullKey]) tpl[timeKey]=[...events[fullKey]];
+    const tpl = {};
+    for(let h = startHour; h <= endHour; h++){
+      for(let m = 0; m < 60; m += slotStep){
+        const timeKey = formatTimeAMPM(h,m);
+        const fullKey = `${isoDate(referenceDate)}-${timeKey}`;
+        if(events[fullKey] && events[fullKey].length > 0){
+          tpl[timeKey] = events[fullKey].map(ev => ({ student: ev.student, grade: ev.grade || '' }));
+        }
       }
     }
-    templates[weekdayIndex]=tpl;
+    templates[weekdayIndex] = tpl;
   } else {
     delete templates[weekdayIndex];
   }
-  linkedWeekdays[weekdayIndex]=!wasLinked;
-  saveAll();
+
+  linkedWeekdays[weekdayIndex] = !wasLinked;
   renderCalendar(currentDate);
 }
 
-function openAddDialog({date,time,weekday,linked}){
-  showDialog(`Add Event — ${time}`,(form)=>{
-    const student=form.student.value.trim(); if(!student) return alert("Student name required");
-    const absent=form.absent.checked;
-    const note=form.note.value.trim();
-    const grade=form.grade.value.trim();
-    const ev={student,absent,note,grade};
-    if(linked){
-      if(!templates[weekday]) templates[weekday]={};
-      if(!templates[weekday][time]) templates[weekday][time]=[];
-      templates[weekday][time].push(ev);
-    } else {
-      const key=`${isoDate(date)}-${time}`;
-      if(!events[key]) events[key]=[];
-      events[key].push(ev);
-    }
-    saveAll(); renderCalendar(currentDate);
+/* Add / Edit dialogs */
+function openAddDialog({date,time}){
+  showDialog(`Add Event — ${time}`, form=>{
+    const student = form.student.value.trim();
+    if(!student) return alert('Student name required');
+    const grade = form.grade.value.trim();
+    const note = form.note.value.trim();
+    const absent = !!form.absent.checked;
+    const fullKey = `${isoDate(date)}-${time}`;
+    if(!events[fullKey]) events[fullKey] = [];
+    events[fullKey].push({ student, grade, note, absent });
+    renderCalendar(currentDate);
   });
 }
 
-function openEditDialog({date,time,index,weekday,linked}){
-  const key = linked ? `${weekday}-${time}` : `${isoDate(date)}-${time}`;
-  const source = linked ? templates[weekday][time] : events[`${isoDate(date)}-${time}`];
-  const ev = source[index];
-  showDialog(`Edit Event — ${time}`,(form)=>{
-    ev.student=form.student.value.trim();
-    ev.absent=form.absent.checked;
-    ev.note=form.note.value.trim();
-    ev.grade=form.grade.value.trim();
-    saveAll(); renderCalendar(currentDate);
-  },()=>{ source.splice(index,1); saveAll(); renderCalendar(currentDate); }, ev);
+function openEditDialog({date,time,index}){
+  const fullKey = `${isoDate(date)}-${time}`;
+  const ev = events[fullKey] && events[fullKey][index];
+  if(!ev) return; // safety
+  showDialog(`Edit Event — ${time}`, form=>{
+    ev.student = form.student.value.trim();
+    ev.grade = form.grade.value.trim();
+    ev.note = form.note.value.trim();
+    ev.absent = !!form.absent.checked;
+    renderCalendar(currentDate);
+  }, ()=>{
+    // onDelete
+    events[fullKey].splice(index,1);
+    renderCalendar(currentDate);
+  }, ev);
 }
 
-function showDialog(title, onSave, onDelete, data={}){
-  dialogContainer.innerHTML='';
-  dialogContainer.style.display='flex';
-  const dlg=document.createElement('div'); dlg.className='dialog';
-  const html=`<h2 style="margin-top:0;font-size:16px">${title}</h2>
-  <div class="form-row"><input type="text" name="student" placeholder="Student Name" value="${data.student||''}"></div>
-  <div class="form-row"><input type="text" name="grade" placeholder="Grade" value="${data.grade||''}"></div>
-  <div class="form-row"><textarea name="note" placeholder="Note">${data.note||''}</textarea></div>
-  <div class="form-row checkbox-container"><label><input type="checkbox" name="absent" ${data.absent?'checked':''}> Absent</label></div>
-  <div class="row-right">
-    ${onDelete?'<button class="btn secondary" id="deleteBtn">Delete</button>':''}
-    <button class="btn" id="saveBtn">Save</button>
-    <button class="btn secondary" id="cancelBtn">Cancel</button>
-  </div>`;
-  dlg.innerHTML=html;
+/* Dialog helper */
+function showDialog(title, onSave, onDelete, data = {}){
+  dialogContainer.innerHTML = '';
+  dialogContainer.style.display = 'flex';
+
+  const dlg = document.createElement('div'); dlg.className = 'dialog-back';
+  dlg.innerHTML = `
+    <div class="dialog" role="dialog" aria-modal="true">
+      <h2 style="margin-top:0;font-size:16px">${escapeHtml(title)}</h2>
+      <form id="eventForm">
+        <div class="form-row"><input type="text" name="student" placeholder="Student Name" value="${escapeHtml(data.student||'')}" /></div>
+        <div class="form-row"><input type="text" name="grade" placeholder="Grade" value="${escapeHtml(data.grade||'')}" /></div>
+        <div class="form-row" style="display:flex;align-items:center;gap:10px;">
+          <label class="switch">
+            <input type="checkbox" name="absent" ${data.absent ? 'checked' : ''} />
+            <span class="slider"></span>
+          </label>
+          <span style="font-weight:500;color:#333;">Absent</span>
+        </div>
+        <div class="form-row"><textarea name="note" placeholder="Note">${escapeHtml(data.note||'')}</textarea></div>
+        <div class="row-right">
+          ${onDelete ? '<button type="button" class="btn secondary" id="deleteBtn">Delete</button>' : ''}
+          <button type="submit" class="btn">Save</button>
+          <button type="button" class="btn secondary" id="cancelBtn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  `;
+
   dialogContainer.appendChild(dlg);
-  dialogContainer.className='dialog-back';
-  dialogContainer.addEventListener('click',e=>{if(e.target===dialogContainer) closeDialog();});
-  dlg.querySelector('#cancelBtn').onclick=closeDialog;
-  dlg.querySelector('#saveBtn').onclick=()=>{ onSave(dlg); closeDialog(); };
-  if(onDelete) dlg.querySelector('#deleteBtn').onclick=()=>{ onDelete(); closeDialog(); };
+
+  const form = dlg.querySelector('#eventForm');
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    onSave(form);
+    closeDialog();
+  };
+
+  const cancelBtn = dlg.querySelector('#cancelBtn');
+  if(cancelBtn) cancelBtn.onclick = closeDialog;
+
+  const deleteBtn = dlg.querySelector('#deleteBtn');
+  if(deleteBtn && onDelete) deleteBtn.onclick = ()=>{ onDelete(); closeDialog(); };
+
+  // clicking outside the dialog closes it
+  dlg.addEventListener('click', (e)=>{
+    if(e.target === dlg) closeDialog();
+  });
+
+  // focus first input
+  const firstInput = form.querySelector('input[name="student"]');
+  if(firstInput) firstInput.focus();
 }
 
-function closeDialog(){ dialogContainer.style.display='none'; dialogContainer.innerHTML=''; }
+/* Close dialog */
+function closeDialog(){
+  dialogContainer.style.display = 'none';
+  dialogContainer.innerHTML = '';
+}
 
-document.getElementById('clearStorage').onclick=()=>{if(confirm('Clear all saved events?')){ events={}; templates={}; linkedWeekdays={}; saveAll(); renderCalendar(currentDate); }};
-document.getElementById('prevWeek').onclick=()=>{ currentDate.setDate(currentDate.getDate()-7); renderCalendar(currentDate); };
-document.getElementById('nextWeek').onclick=()=>{ currentDate.setDate(currentDate.getDate()+7); renderCalendar(currentDate); };
+/* small helper to avoid injecting HTML from data */
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
+/* clear storage button (local) */
+document.getElementById('clearStorage').onclick = ()=>{
+  if(confirm('Clear all saved events?')){
+    events = {};
+    templates = {};
+    linkedWeekdays = {};
+    saveAll();
+    renderCalendar(currentDate);
+  }
+};
+document.getElementById('prevWeek').onclick = ()=>{ currentDate.setDate(currentDate.getDate()-7); renderCalendar(currentDate); };
+document.getElementById('nextWeek').onclick = ()=>{ currentDate.setDate(currentDate.getDate()+7); renderCalendar(currentDate); };
+
+/* initial render */
 renderCalendar(currentDate);
+
 </script>
+
 </body>
 </html>
