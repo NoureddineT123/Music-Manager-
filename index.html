@@ -1,8 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Student Scheduler</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
@@ -29,6 +27,21 @@
   .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;}
   .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06);}
 
+  .branch-info{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    font-weight:bold;
+    color:#333;
+    text-align:right;
+  }
+  .branch-info hr{
+    border:none;
+    border-top:1px solid rgba(0,0,0,0.2);
+    width:100%;
+    margin:4px 0;
+  }
+
   .calendar{background:var(--card);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08);overflow:hidden;}
   .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,var(--accent),#006bb3);color:#fff;}
   .week-range{font-weight:600;}
@@ -47,18 +60,12 @@
   .time-label{background:var(--muted);padding:8px 6px;font-size:12px;color:#444;text-align:center;}
   .slot{padding:6px;min-height:46px;position:relative;cursor:pointer;}
 
-  /* event styles */
   .event{
     display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#000;
-    background:#e6f7ff !important; /* light blue for present/default */
+    background:#e6f7ff !important;
     white-space:pre-line;
   }
-  .event.absent{
-    background:#ffd6d6 !important; /* very light red when absent */
-  }
-
-  .meta{font-size:11px;color:#fff;opacity:0.9;margin-top:6px;}
-  .small{font-size:12px;color:#444;}
+  .event.absent{background:#ffd6d6 !important;}
 
   .dialog-back{position:fixed;inset:0;background:var(--bg-overlay);display:flex;align-items:center;justify-content:center;z-index:60;}
   .dialog{background:#fff;padding:20px;border-radius:10px;min-width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.25);}
@@ -68,7 +75,6 @@
   textarea{min-height:80px;resize:vertical;}
   .row-right{display:flex;gap:8px;justify-content:flex-end;}
 
-  /* small switch - green when off, red when on */
   .switch{position:relative;display:inline-block;width:40px;height:20px;}
   .switch input{opacity:0;width:0;height:0;}
   .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#28a745;transition:.4s;border-radius:34px;}
@@ -87,35 +93,34 @@
 <div class="wrap">
   <div class="top">
     <div class="title">
-      <h1><img src="logo.png" alt="Logo" style="height:24px;"> The Lebanese National High Conservatory Of Music</h1>
+      <h1><img src="logo.png" alt="Logo" style="height:24px;"> The Lebanese National High Conservatory Of Music<br>  Academic Year: 2025 - 2026</h1>
     </div>
 
     <div class="controls">
-      <span style="margin-left:12px;font-weight:500;color:#333;">Branch: Saida / Piano professor: Ghada Nahouli</span>
+      <div class="branch-info">
+        <span>Piano Professor: Ghada Nahouli</span>
+        <hr>
+        
+      <span>Branch: Saida</span></div>
       <button class="btn secondary" id="clearStorage">Clear All</button>
     </div>
   </div>
 
   <div class="calendar">
     <div class="header">
-      <div class="week-range" id="weekRange">—</div>
+      <div class="week-range" id="weekRange">Oct 13 — Oct 19</div>
       <div class="nav">
         <div class="icon" id="prevWeek">◀</div>
         <div class="icon" id="nextWeek">▶</div>
       </div>
     </div>
-
-    <div class="grid" id="calendarGrid"></div>
+    <div class="grid" id="calendarGrid"><div class="cell top-left"></div><div class="day-header cell"><div class="day-name">Mon</div><div class="day-date">Oct 13, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Tue</div><div class="day-date">Oct 14, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Wed</div><div class="day-date">Oct 15, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Thu</div><div class="day-date">Oct 16, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Fri</div><div class="day-date">Oct 17, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sat</div><div class="day-date">Oct 18, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sun</div><div class="day-date">Oct 19, 2025</div><button class="link-btn">Link ✅</button></div><div class="time-label cell">9:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">9:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div></div>
   </div>
 </div>
 
 <div id="dialogContainer" style="display:none;"></div>
 
 <script>
-/* ========================
-   Scheduler (localStorage)
-   ======================== */
-
 const grid = document.getElementById('calendarGrid');
 const weekRange = document.getElementById('weekRange');
 const dialogContainer = document.getElementById('dialogContainer');
@@ -126,286 +131,169 @@ const EV_KEY = 'studentEvents_v_local_v1';
 const TMP_KEY = 'weekdayTemplates_v_local_v1';
 const LINK_KEY = 'linkedWeekdays_v_local_v1';
 
-/* Try to load from localStorage safely */
 let events = {};
 let templates = {};
 let linkedWeekdays = {};
 
-try {
-  events = JSON.parse(localStorage.getItem(EV_KEY)) || {};
-} catch(e){ events = {}; }
-try {
-  templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {};
-} catch(e){ templates = {}; }
-try {
-  linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {};
-} catch(e){ linkedWeekdays = {}; }
+try { events = JSON.parse(localStorage.getItem(EV_KEY)) || {}; } catch(e){ events = {}; }
+try { templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {}; } catch(e){ templates = {}; }
+try { linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {}; } catch(e){ linkedWeekdays = {}; }
 
 function saveAll(){
-  try {
+  try{
     localStorage.setItem(EV_KEY, JSON.stringify(events));
     localStorage.setItem(TMP_KEY, JSON.stringify(templates));
     localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
-  } catch(e){
-    console.error('Failed to save to localStorage', e);
-  }
+  }catch(e){console.error(e);}
 }
 
-/* Helpers */
 function isoDate(d){
-  const y=d.getFullYear();
-  const m=(d.getMonth()+1).toString().padStart(2,'0');
-  const day=d.getDate().toString().padStart(2,'0');
-  return `${y}-${m}-${day}`;
+  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
 }
 function formatTimeAMPM(h,m){
-  const ampm = h>=12 ? 'PM' : 'AM';
-  const hr = h>12 ? h-12 : (h===0 ? 12 : h);
+  const ampm = h>=12?'PM':'AM';
+  const hr = h>12?h-12:(h===0?12:h);
   return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
 }
 function getWeekStart(date){
   const d=new Date(date);
-  const day=d.getDay();
-  const diff = day===0 ? -6 : 1-day; // monday as start
+  const diff = d.getDay()===0 ? -6 : 1 - d.getDay();
   d.setDate(d.getDate()+diff);
   d.setHours(0,0,0,0);
   return d;
 }
 
-/* Render calendar */
 function renderCalendar(date){
-  grid.innerHTML = '';
-  const startOfWeek = getWeekStart(date);
-  const days = [];
-  for(let i=0;i<7;i++){
-    const dd = new Date(startOfWeek);
-    dd.setDate(dd.getDate()+i);
-    days.push(dd);
-  }
+  grid.innerHTML='';
+  const startOfWeek=getWeekStart(date);
+  const days=[];
+  for(let i=0;i<7;i++){const dd=new Date(startOfWeek);dd.setDate(dd.getDate()+i);days.push(dd);}
 
-  // top-left corner
-  const tl = document.createElement('div'); tl.className = 'cell top-left';
-  grid.appendChild(tl);
+  const tl=document.createElement('div');tl.className='cell top-left';grid.appendChild(tl);
 
-  // day headers
   days.forEach(d=>{
-    const cell = document.createElement('div'); cell.className = 'day-header cell';
-    const weekdayIndex = d.getDay();
-    const dayName = d.toLocaleDateString(undefined,{weekday:'short'});
-    const dateShort = d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-    const name = document.createElement('div'); name.className='day-name'; name.textContent = dayName;
-    const dt = document.createElement('div'); dt.className='day-date'; dt.textContent = dateShort;
-    const btn = document.createElement('button'); btn.className='link-btn';
-    if(linkedWeekdays[weekdayIndex]) btn.classList.add('linked');
-    btn.textContent = linkedWeekdays[weekdayIndex] ? '🔗 Linked' : 'Link ✅';
-    btn.addEventListener('click', e=>{
-      e.stopPropagation();
-      toggleLinkForWeekday(weekdayIndex, d);
-    });
-    cell.appendChild(name); cell.appendChild(dt); cell.appendChild(btn);
-    grid.appendChild(cell);
+    const cell=document.createElement('div');cell.className='day-header cell';
+    const weekdayIndex=d.getDay();
+    const dayName=d.toLocaleDateString(undefined,{weekday:'short'});
+    const dateStr=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); // YEAR ADDED HERE
+    const name=document.createElement('div');name.className='day-name';name.textContent=dayName;
+    const dt=document.createElement('div');dt.className='day-date';dt.textContent=dateStr;
+    const btn=document.createElement('button');btn.className='link-btn';
+    if(linkedWeekdays[weekdayIndex])btn.classList.add('linked');
+    btn.textContent=linkedWeekdays[weekdayIndex]?'🔗 Linked':'Link ✅';
+    btn.addEventListener('click',e=>{e.stopPropagation();toggleLinkForWeekday(weekdayIndex,d);});
+    cell.appendChild(name);cell.appendChild(dt);cell.appendChild(btn);grid.appendChild(cell);
   });
 
-  // timeslots
-  for(let h = startHour; h <= endHour; h++){
-    for(let m = 0; m < 60; m += slotStep){
-      const tlbl = document.createElement('div'); tlbl.className = 'time-label cell';
-      tlbl.textContent = formatTimeAMPM(h,m);
-      grid.appendChild(tlbl);
-
+  for(let h=startHour;h<=endHour;h++){
+    for(let m=0;m<60;m+=slotStep){
+      const tlbl=document.createElement('div');tlbl.className='time-label cell';tlbl.textContent=formatTimeAMPM(h,m);grid.appendChild(tlbl);
       days.forEach(d=>{
-        const slot = document.createElement('div'); slot.className = 'slot cell';
-        const dateKey = isoDate(d);
-        const timeKey = formatTimeAMPM(h,m);
-        const wkday = d.getDay();
-        const fullKey = `${dateKey}-${timeKey}`;
-
-        // ensure events[fullKey] exists
-        if(!Array.isArray(events[fullKey])) events[fullKey] = [];
-
-        let shownEvents = [];
-
+        const slot=document.createElement('div');slot.className='slot cell';
+        const dateKey=isoDate(d);const timeKey=formatTimeAMPM(h,m);const wkday=d.getDay();const fullKey=`${dateKey}-${timeKey}`;
+        if(!Array.isArray(events[fullKey]))events[fullKey]=[];
+        let shownEvents=[];
         if(linkedWeekdays[wkday] && templates[wkday] && Array.isArray(templates[wkday][timeKey])){
-          // For linked weekdays: ensure event entries exist for that date for each template student,
-          // but do NOT copy notes — notes remain per date.
-          templates[wkday][timeKey].forEach(tpl => {
-            let existing = events[fullKey].find(e => e.student === tpl.student);
-            if(!existing){
-              existing = { student: tpl.student, grade: tpl.grade || '', note: '', absent: false };
-              events[fullKey].push(existing);
-            } else {
-              // keep existing.note and existing.absent as they are per-date
-            }
+          templates[wkday][timeKey].forEach(tpl=>{
+            let existing=events[fullKey].find(e=>e.student===tpl.student);
+            if(!existing){existing={student:tpl.student,grade:tpl.grade||'',note:'',absent:false};events[fullKey].push(existing);}
             shownEvents.push(existing);
           });
-        } else {
-          shownEvents = [...events[fullKey]];
-        }
-
-        // create visuals
-        shownEvents.forEach((ev, idx)=>{
-          const evEl = document.createElement('span');
-          evEl.className = 'event' + (ev.absent ? ' absent' : '');
-          const gradePart = ev.grade ? (' · ' + ev.grade) : '';
-          evEl.textContent = `${ev.student}${gradePart}` + (ev.note ? `\n${ev.note}` : '');
-          evEl.addEventListener('click', e=>{
-            e.stopPropagation();
-            openEditDialog({ date: d, time: timeKey, index: idx });
-          });
+        }else shownEvents=[...events[fullKey]];
+        shownEvents.forEach((ev,idx)=>{
+          const evEl=document.createElement('span');
+          evEl.className='event'+(ev.absent?' absent':'');
+          const gradePart=ev.grade?(' · '+ev.grade):'';
+          evEl.textContent=`${ev.student}${gradePart}`+(ev.note?`\n${ev.note}`:'');
+          evEl.addEventListener('click',e=>{e.stopPropagation();openEditDialog({date:d,time:timeKey,index:idx});});
           slot.appendChild(evEl);
         });
-
-        slot.addEventListener('click', ()=> openAddDialog({ date: d, time: timeKey }));
+        slot.addEventListener('click',()=>openAddDialog({date:d,time:timeKey}));
         grid.appendChild(slot);
       });
     }
   }
 
-  const start = days[0], end = days[6];
-  weekRange.textContent = `${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
-
+  const start=days[0],end=days[6];
+  weekRange.textContent=`${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
   saveAll();
 }
 
-/* Toggle link for a weekday: create templates from a reference date's events (student+grade only) */
 function toggleLinkForWeekday(weekdayIndex, referenceDate){
-  const wasLinked = !!linkedWeekdays[weekdayIndex];
-
+  const wasLinked=!!linkedWeekdays[weekdayIndex];
   if(!wasLinked){
-    const tpl = {};
-    for(let h = startHour; h <= endHour; h++){
-      for(let m = 0; m < 60; m += slotStep){
-        const timeKey = formatTimeAMPM(h,m);
-        const fullKey = `${isoDate(referenceDate)}-${timeKey}`;
-        if(events[fullKey] && events[fullKey].length > 0){
-          tpl[timeKey] = events[fullKey].map(ev => ({ student: ev.student, grade: ev.grade || '' }));
+    const tpl={};
+    for(let h=startHour;h<=endHour;h++){
+      for(let m=0;m<60;m+=slotStep){
+        const timeKey=formatTimeAMPM(h,m);
+        const fullKey=`${isoDate(referenceDate)}-${timeKey}`;
+        if(events[fullKey] && events[fullKey].length>0){
+          tpl[timeKey]=events[fullKey].map(ev=>({student:ev.student,grade:ev.grade||''}));
         }
       }
     }
-    templates[weekdayIndex] = tpl;
-  } else {
-    delete templates[weekdayIndex];
-  }
-
-  linkedWeekdays[weekdayIndex] = !wasLinked;
+    templates[weekdayIndex]=tpl;
+  }else delete templates[weekdayIndex];
+  linkedWeekdays[weekdayIndex]=!wasLinked;
   renderCalendar(currentDate);
 }
 
-/* Add / Edit dialogs */
 function openAddDialog({date,time}){
-  showDialog(`Add Event — ${time}`, form=>{
-    const student = form.student.value.trim();
-    if(!student) return alert('Student name required');
-    const grade = form.grade.value.trim();
-    const note = form.note.value.trim();
-    const absent = !!form.absent.checked;
-    const fullKey = `${isoDate(date)}-${time}`;
-    if(!events[fullKey]) events[fullKey] = [];
-    events[fullKey].push({ student, grade, note, absent });
+  showDialog(`Add Event — ${time}`,form=>{
+    const student=form.student.value.trim();if(!student)return alert('Student name required');
+    const grade=form.grade.value.trim();const note=form.note.value.trim();const absent=!!form.absent.checked;
+    const fullKey=`${isoDate(date)}-${time}`;if(!events[fullKey])events[fullKey]=[];
+    events[fullKey].push({student,grade,note,absent});
     renderCalendar(currentDate);
   });
 }
 
 function openEditDialog({date,time,index}){
-  const fullKey = `${isoDate(date)}-${time}`;
-  const ev = events[fullKey] && events[fullKey][index];
-  if(!ev) return; // safety
-  showDialog(`Edit Event — ${time}`, form=>{
-    ev.student = form.student.value.trim();
-    ev.grade = form.grade.value.trim();
-    ev.note = form.note.value.trim();
-    ev.absent = !!form.absent.checked;
+  const fullKey=`${isoDate(date)}-${time}`;const ev=events[fullKey]&&events[fullKey][index];if(!ev)return;
+  showDialog(`Edit Event — ${time}`,form=>{
+    ev.student=form.student.value.trim();ev.grade=form.grade.value.trim();ev.note=form.note.value.trim();ev.absent=!!form.absent.checked;
     renderCalendar(currentDate);
-  }, ()=>{
-    // onDelete
-    events[fullKey].splice(index,1);
-    renderCalendar(currentDate);
-  }, ev);
+  },()=>{events[fullKey].splice(index,1);renderCalendar(currentDate);},ev);
 }
 
-/* Dialog helper */
-function showDialog(title, onSave, onDelete, data = {}){
-  dialogContainer.innerHTML = '';
-  dialogContainer.style.display = 'flex';
-
-  const dlg = document.createElement('div'); dlg.className = 'dialog-back';
-  dlg.innerHTML = `
-    <div class="dialog" role="dialog" aria-modal="true">
+function showDialog(title,onSave,onDelete,data={}){
+  dialogContainer.innerHTML='';dialogContainer.style.display='flex';
+  const dlg=document.createElement('div');dlg.className='dialog-back';
+  dlg.innerHTML=`
+    <div class="dialog">
       <h2 style="margin-top:0;font-size:16px">${escapeHtml(title)}</h2>
       <form id="eventForm">
         <div class="form-row"><input type="text" name="student" placeholder="Student Name" value="${escapeHtml(data.student||'')}" /></div>
         <div class="form-row"><input type="text" name="grade" placeholder="Grade" value="${escapeHtml(data.grade||'')}" /></div>
         <div class="form-row" style="display:flex;align-items:center;gap:10px;">
-          <label class="switch">
-            <input type="checkbox" name="absent" ${data.absent ? 'checked' : ''} />
-            <span class="slider"></span>
-          </label>
+          <label class="switch"><input type="checkbox" name="absent" ${data.absent?'checked':''}/><span class="slider"></span></label>
           <span style="font-weight:500;color:#333;">Absent</span>
         </div>
         <div class="form-row"><textarea name="note" placeholder="Note">${escapeHtml(data.note||'')}</textarea></div>
         <div class="row-right">
-          ${onDelete ? '<button type="button" class="btn secondary" id="deleteBtn">Delete</button>' : ''}
+          ${onDelete?'<button type="button" class="btn secondary" id="deleteBtn">Delete</button>':''}
           <button type="submit" class="btn">Save</button>
           <button type="button" class="btn secondary" id="cancelBtn">Cancel</button>
         </div>
       </form>
-    </div>
-  `;
-
+    </div>`;
   dialogContainer.appendChild(dlg);
-
-  const form = dlg.querySelector('#eventForm');
-
-  form.onsubmit = (e) => {
-    e.preventDefault();
-    onSave(form);
-    closeDialog();
-  };
-
-  const cancelBtn = dlg.querySelector('#cancelBtn');
-  if(cancelBtn) cancelBtn.onclick = closeDialog;
-
-  const deleteBtn = dlg.querySelector('#deleteBtn');
-  if(deleteBtn && onDelete) deleteBtn.onclick = ()=>{ onDelete(); closeDialog(); };
-
-  // clicking outside the dialog closes it
-  dlg.addEventListener('click', (e)=>{
-    if(e.target === dlg) closeDialog();
-  });
-
-  // focus first input
-  const firstInput = form.querySelector('input[name="student"]');
-  if(firstInput) firstInput.focus();
+  const form=dlg.querySelector('#eventForm');
+  form.onsubmit=e=>{e.preventDefault();onSave(form);closeDialog();};
+  dlg.querySelector('#cancelBtn').onclick=closeDialog;
+  if(onDelete)dlg.querySelector('#deleteBtn').onclick=()=>{onDelete();closeDialog();};
+  dlg.addEventListener('click',e=>{if(e.target===dlg)closeDialog();});
 }
 
-/* Close dialog */
-function closeDialog(){
-  dialogContainer.style.display = 'none';
-  dialogContainer.innerHTML = '';
-}
+function closeDialog(){dialogContainer.style.display='none';dialogContainer.innerHTML='';}
+function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* small helper to avoid injecting HTML from data */
-function escapeHtml(str){
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+document.getElementById('clearStorage').onclick=()=>{if(confirm('Clear all saved events?')){events={};templates={};linkedWeekdays={};saveAll();renderCalendar(currentDate);}};
+document.getElementById('prevWeek').onclick=()=>{currentDate.setDate(currentDate.getDate()-7);renderCalendar(currentDate);};
+document.getElementById('nextWeek').onclick=()=>{currentDate.setDate(currentDate.getDate()+7);renderCalendar(currentDate);};
 
-/* clear storage button (local) */
-document.getElementById('clearStorage').onclick = ()=>{
-  if(confirm('Clear all saved events?')){
-    events = {};
-    templates = {};
-    linkedWeekdays = {};
-    saveAll();
-    renderCalendar(currentDate);
-  }
-};
-document.getElementById('prevWeek').onclick = ()=>{ currentDate.setDate(currentDate.getDate()-7); renderCalendar(currentDate); };
-document.getElementById('nextWeek').onclick = ()=>{ currentDate.setDate(currentDate.getDate()+7); renderCalendar(currentDate); };
-
-/* initial render */
 renderCalendar(currentDate);
-
 </script>
 
-</body>
-</html>
+
+</body></html>
