@@ -19,28 +19,16 @@
   body{margin:0;background:linear-gradient(180deg,#f5f6f8 0,#f3f4f6 100%);padding:24px;display:flex;justify-content:center;}
 
   .wrap{width:100%;max-width:1150px;}
-
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .title{display:flex;gap:12px;align-items:center;}
   h1{font-size:18px;margin:0;color:var(--text);font-weight:700;display:flex;align-items:center;gap:8px;}
-  .controls{display:flex;gap:8px;align-items:center;}
+
+  .controls{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+  .branch-info{font-weight:700;color:#333;text-align:right;}
+  .branch-info hr{border:none;border-top:1px solid #ccc;margin:4px 0;width:100%;}
+
   .btn{background:var(--accent);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;}
   .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06);}
-
-  .branch-info{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    font-weight:bold;
-    color:#333;
-    text-align:right;
-  }
-  .branch-info hr{
-    border:none;
-    border-top:1px solid rgba(0,0,0,0.2);
-    width:100%;
-    margin:4px 0;
-  }
 
   .calendar{background:var(--card);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.08);overflow:hidden;}
   .header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,var(--accent),#006bb3);color:#fff;}
@@ -60,11 +48,7 @@
   .time-label{background:var(--muted);padding:8px 6px;font-size:12px;color:#444;text-align:center;}
   .slot{padding:6px;min-height:46px;position:relative;cursor:pointer;}
 
-  .event{
-    display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#000;
-    background:#e6f7ff !important;
-    white-space:pre-line;
-  }
+  .event{display:block;padding:6px;border-radius:6px;margin-bottom:6px;font-size:12px;color:#000;background:#e6f7ff !important;white-space:pre-line;}
   .event.absent{background:#ffd6d6 !important;}
 
   .dialog-back{position:fixed;inset:0;background:var(--bg-overlay);display:flex;align-items:center;justify-content:center;z-index:60;}
@@ -88,8 +72,8 @@
   }
 </style>
 </head>
-<body>
 
+<body>
 <div class="wrap">
   <div class="top">
     <div class="title">
@@ -102,23 +86,29 @@
         <hr>
         
       <span>Branch: Saida</span></div>
-      <button class="btn secondary" id="clearStorage">Clear All</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn secondary" id="clearStorage">Clear All</button>
+        <button class="btn" id="downloadJson">Download JSON</button>
+        <button class="btn" id="uploadJson">Upload JSON</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none;">
+      </div>
     </div>
   </div>
 
   <div class="calendar">
     <div class="header">
-      <div class="week-range" id="weekRange">Oct 13 — Oct 19</div>
+      <div class="week-range" id="weekRange">Oct 20 — Oct 26, 2025</div>
       <div class="nav">
         <div class="icon" id="prevWeek">◀</div>
         <div class="icon" id="nextWeek">▶</div>
       </div>
     </div>
-    <div class="grid" id="calendarGrid"><div class="cell top-left"></div><div class="day-header cell"><div class="day-name">Mon</div><div class="day-date">Oct 13, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Tue</div><div class="day-date">Oct 14, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Wed</div><div class="day-date">Oct 15, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Thu</div><div class="day-date">Oct 16, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Fri</div><div class="day-date">Oct 17, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sat</div><div class="day-date">Oct 18, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sun</div><div class="day-date">Oct 19, 2025</div><button class="link-btn">Link ✅</button></div><div class="time-label cell">9:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">9:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div></div>
+    <div class="grid" id="calendarGrid"><div class="cell top-left"></div><div class="day-header cell"><div class="day-name">Mon</div><div class="day-date">Oct 20, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Tue</div><div class="day-date">Oct 21, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Wed</div><div class="day-date">Oct 22, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Thu</div><div class="day-date">Oct 23, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Fri</div><div class="day-date">Oct 24, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sat</div><div class="day-date">Oct 25, 2025</div><button class="link-btn">Link ✅</button></div><div class="day-header cell"><div class="day-name">Sun</div><div class="day-date">Oct 26, 2025</div><button class="link-btn">Link ✅</button></div><div class="time-label cell">9:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">9:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:00 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">10:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:00 AM</div><div class="slot cell"></div><div class="slot cell"><span class="event">2 · 2
+2</span></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">11:30 AM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">12:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">1:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">2:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">3:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">4:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">5:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:00 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="time-label cell">6:30 PM</div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div><div class="slot cell"></div></div>
   </div>
 </div>
 
-<div id="dialogContainer" style="display:none;"></div>
+<div id="dialogContainer" style="display: none;"></div>
 
 <script>
 const grid = document.getElementById('calendarGrid');
@@ -127,9 +117,9 @@ const dialogContainer = document.getElementById('dialogContainer');
 
 let currentDate = new Date(); currentDate.setHours(0,0,0,0);
 const startHour = 9, endHour = 18, slotStep = 30;
-const EV_KEY = 'studentEvents_v_local_v1';
-const TMP_KEY = 'weekdayTemplates_v_local_v1';
-const LINK_KEY = 'linkedWeekdays_v_local_v1';
+const EV_KEY = 'studentEvents_v_local_v2';
+const TMP_KEY = 'weekdayTemplates_v_local_v2';
+const LINK_KEY = 'linkedWeekdays_v_local_v2';
 
 let events = {};
 let templates = {};
@@ -147,35 +137,48 @@ function saveAll(){
   }catch(e){console.error(e);}
 }
 
-function isoDate(d){
-  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
-}
-function formatTimeAMPM(h,m){
-  const ampm = h>=12?'PM':'AM';
-  const hr = h>12?h-12:(h===0?12:h);
-  return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
-}
-function getWeekStart(date){
-  const d=new Date(date);
-  const diff = d.getDay()===0 ? -6 : 1 - d.getDay();
-  d.setDate(d.getDate()+diff);
-  d.setHours(0,0,0,0);
-  return d;
-}
+/* --- JSON download/upload --- */
+document.getElementById('downloadJson').onclick = ()=>{
+  const data = {events, templates, linkedWeekdays};
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='scheduler-data.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('uploadJson').onclick = ()=>document.getElementById('fileInput').click();
+document.getElementById('fileInput').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload = evt => {
+    try{
+      const data=JSON.parse(evt.target.result);
+      events=data.events||{}; templates=data.templates||{}; linkedWeekdays=data.linkedWeekdays||{};
+      saveAll(); renderCalendar(currentDate);
+      alert('Data imported successfully!');
+    }catch(err){alert('Invalid JSON file.');}
+  };
+  reader.readAsText(file);
+});
+
+/* --- Original scheduler functions --- */
+function isoDate(d){return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;}
+function formatTimeAMPM(h,m){const ampm=h>=12?'PM':'AM';const hr=h>12?h-12:(h===0?12:h);return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;}
+function getWeekStart(date){const d=new Date(date);const diff=d.getDay()===0?-6:1-d.getDay();d.setDate(d.getDate()+diff);d.setHours(0,0,0,0);return d;}
 
 function renderCalendar(date){
   grid.innerHTML='';
   const startOfWeek=getWeekStart(date);
   const days=[];
   for(let i=0;i<7;i++){const dd=new Date(startOfWeek);dd.setDate(dd.getDate()+i);days.push(dd);}
-
   const tl=document.createElement('div');tl.className='cell top-left';grid.appendChild(tl);
 
   days.forEach(d=>{
     const cell=document.createElement('div');cell.className='day-header cell';
     const weekdayIndex=d.getDay();
     const dayName=d.toLocaleDateString(undefined,{weekday:'short'});
-    const dateStr=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); // YEAR ADDED HERE
+    const dateStr=d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
     const name=document.createElement('div');name.className='day-name';name.textContent=dayName;
     const dt=document.createElement('div');dt.className='day-date';dt.textContent=dateStr;
     const btn=document.createElement('button');btn.className='link-btn';
@@ -199,10 +202,9 @@ function renderCalendar(date){
             if(!existing){existing={student:tpl.student,grade:tpl.grade||'',note:'',absent:false};events[fullKey].push(existing);}
             shownEvents.push(existing);
           });
-        }else shownEvents=[...events[fullKey]];
+        } else shownEvents=[...events[fullKey]];
         shownEvents.forEach((ev,idx)=>{
-          const evEl=document.createElement('span');
-          evEl.className='event'+(ev.absent?' absent':'');
+          const evEl=document.createElement('span'); evEl.className='event'+(ev.absent?' absent':'');
           const gradePart=ev.grade?(' · '+ev.grade):'';
           evEl.textContent=`${ev.student}${gradePart}`+(ev.note?`\n${ev.note}`:'');
           evEl.addEventListener('click',e=>{e.stopPropagation();openEditDialog({date:d,time:timeKey,index:idx});});
@@ -215,10 +217,11 @@ function renderCalendar(date){
   }
 
   const start=days[0],end=days[6];
-  weekRange.textContent=`${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':undefined})}`;
+  weekRange.textContent=`${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} — ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:(start.getFullYear()!==end.getFullYear())?'numeric':'numeric'})}`;
   saveAll();
 }
 
+/* ... All original dialog functions remain the same ... */
 function toggleLinkForWeekday(weekdayIndex, referenceDate){
   const wasLinked=!!linkedWeekdays[weekdayIndex];
   if(!wasLinked){
@@ -233,28 +236,14 @@ function toggleLinkForWeekday(weekdayIndex, referenceDate){
       }
     }
     templates[weekdayIndex]=tpl;
-  }else delete templates[weekdayIndex];
+  } else delete templates[weekdayIndex];
   linkedWeekdays[weekdayIndex]=!wasLinked;
   renderCalendar(currentDate);
 }
 
-function openAddDialog({date,time}){
-  showDialog(`Add Event — ${time}`,form=>{
-    const student=form.student.value.trim();if(!student)return alert('Student name required');
-    const grade=form.grade.value.trim();const note=form.note.value.trim();const absent=!!form.absent.checked;
-    const fullKey=`${isoDate(date)}-${time}`;if(!events[fullKey])events[fullKey]=[];
-    events[fullKey].push({student,grade,note,absent});
-    renderCalendar(currentDate);
-  });
-}
+function openAddDialog({date,time}){showDialog(`Add Event — ${time}`,form=>{const student=form.student.value.trim();if(!student)return alert('Student name required');const grade=form.grade.value.trim();const note=form.note.value.trim();const absent=!!form.absent.checked;const fullKey=`${isoDate(date)}-${time}`;if(!events[fullKey])events[fullKey]=[];events[fullKey].push({student,grade,note,absent});renderCalendar(currentDate);});}
 
-function openEditDialog({date,time,index}){
-  const fullKey=`${isoDate(date)}-${time}`;const ev=events[fullKey]&&events[fullKey][index];if(!ev)return;
-  showDialog(`Edit Event — ${time}`,form=>{
-    ev.student=form.student.value.trim();ev.grade=form.grade.value.trim();ev.note=form.note.value.trim();ev.absent=!!form.absent.checked;
-    renderCalendar(currentDate);
-  },()=>{events[fullKey].splice(index,1);renderCalendar(currentDate);},ev);
-}
+function openEditDialog({date,time,index}){const fullKey=`${isoDate(date)}-${time}`;const ev=events[fullKey]&&events[fullKey][index];if(!ev)return;showDialog(`Edit Event — ${time}`,form=>{ev.student=form.student.value.trim();ev.grade=form.grade.value.trim();ev.note=form.note.value.trim();ev.absent=!!form.absent.checked;renderCalendar(currentDate);},()=>{events[fullKey].splice(index,1);renderCalendar(currentDate);},ev);}
 
 function showDialog(title,onSave,onDelete,data={}){
   dialogContainer.innerHTML='';dialogContainer.style.display='flex';
@@ -284,14 +273,25 @@ function showDialog(title,onSave,onDelete,data={}){
   if(onDelete)dlg.querySelector('#deleteBtn').onclick=()=>{onDelete();closeDialog();};
   dlg.addEventListener('click',e=>{if(e.target===dlg)closeDialog();});
 }
-
 function closeDialog(){dialogContainer.style.display='none';dialogContainer.innerHTML='';}
-function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-document.getElementById('clearStorage').onclick=()=>{if(confirm('Clear all saved events?')){events={};templates={};linkedWeekdays={};saveAll();renderCalendar(currentDate);}};
+/* --- Week navigation --- */
 document.getElementById('prevWeek').onclick=()=>{currentDate.setDate(currentDate.getDate()-7);renderCalendar(currentDate);};
 document.getElementById('nextWeek').onclick=()=>{currentDate.setDate(currentDate.getDate()+7);renderCalendar(currentDate);};
 
+/* --- Clear all storage --- */
+document.getElementById('clearStorage').onclick=()=>{
+  if(confirm('Are you sure? This will clear all saved data.')){
+    localStorage.removeItem(EV_KEY);
+    localStorage.removeItem(TMP_KEY);
+    localStorage.removeItem(LINK_KEY);
+    events={}; templates={}; linkedWeekdays={};
+    renderCalendar(currentDate);
+  }
+};
+
+/* --- Initial render --- */
 renderCalendar(currentDate);
 </script>
 
