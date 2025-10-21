@@ -243,17 +243,18 @@ function toggleLinkForWeekday(weekdayIndex, referenceDate){
 
 function openAddDialog({date,time}){showDialog(`Add Event — ${time}`,form=>{const student=form.student.value.trim();if(!student)return alert('Student name required');const grade=form.grade.value.trim();const note=form.note.value.trim();const absent=!!form.absent.checked;const fullKey=`${isoDate(date)}-${time}`;if(!events[fullKey])events[fullKey]=[];events[fullKey].push({student,grade,note,absent});renderCalendar(currentDate);});}
 
-function openEditDialog({date,time,index}) {
+function openEditDialog({date, time, index}) {
   const fullKey = `${isoDate(date)}-${time}`;
   const ev = events[fullKey] && events[fullKey][index];
   if (!ev) return;
 
   const weekday = date.getDay();
-  const isLinked = linkedWeekdays[weekday] && templates[weekday] && Array.isArray(templates[weekday][time]);
+  const isLinked = linkedWeekdays[weekday] && templates[weekday] && templates[weekday][time];
 
   showDialog(
     `Edit Event — ${time}`,
     form => {
+      // Save / update
       ev.student = form.student.value.trim();
       ev.grade = form.grade.value.trim();
       ev.note = form.note.value.trim();
@@ -261,21 +262,26 @@ function openEditDialog({date,time,index}) {
       renderCalendar(currentDate);
     },
     () => {
-      // Normal deletion
+      // === DELETE LOGIC ===
+      // Remove from normal events
       events[fullKey].splice(index, 1);
 
-      // Also delete from linked templates if this event was part of one
+      // If it’s a linked weekday event → also remove from template
       if (isLinked) {
-        templates[weekday][time] = templates[weekday][time].filter(tpl => tpl.student !== ev.student);
-        // Remove empty arrays to keep things clean
+        templates[weekday][time] = templates[weekday][time].filter(
+          tpl => tpl.student !== ev.student
+        );
+        // Clean up empty arrays
         if (templates[weekday][time].length === 0) delete templates[weekday][time];
       }
 
+      saveAll();
       renderCalendar(currentDate);
     },
     ev
   );
 }
+
 
 
 function showDialog(title,onSave,onDelete,data={}){
