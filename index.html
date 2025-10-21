@@ -243,7 +243,40 @@ function toggleLinkForWeekday(weekdayIndex, referenceDate){
 
 function openAddDialog({date,time}){showDialog(`Add Event — ${time}`,form=>{const student=form.student.value.trim();if(!student)return alert('Student name required');const grade=form.grade.value.trim();const note=form.note.value.trim();const absent=!!form.absent.checked;const fullKey=`${isoDate(date)}-${time}`;if(!events[fullKey])events[fullKey]=[];events[fullKey].push({student,grade,note,absent});renderCalendar(currentDate);});}
 
-function openEditDialog({date,time,index}){const fullKey=`${isoDate(date)}-${time}`;const ev=events[fullKey]&&events[fullKey][index];if(!ev)return;showDialog(`Edit Event — ${time}`,form=>{ev.student=form.student.value.trim();ev.grade=form.grade.value.trim();ev.note=form.note.value.trim();ev.absent=!!form.absent.checked;renderCalendar(currentDate);},()=>{events[fullKey].splice(index,1);renderCalendar(currentDate);},ev);}
+function openEditDialog({date,time,index}) {
+  const fullKey = `${isoDate(date)}-${time}`;
+  const ev = events[fullKey] && events[fullKey][index];
+  if (!ev) return;
+
+  const weekday = date.getDay();
+  const isLinked = linkedWeekdays[weekday] && templates[weekday] && Array.isArray(templates[weekday][time]);
+
+  showDialog(
+    `Edit Event — ${time}`,
+    form => {
+      ev.student = form.student.value.trim();
+      ev.grade = form.grade.value.trim();
+      ev.note = form.note.value.trim();
+      ev.absent = !!form.absent.checked;
+      renderCalendar(currentDate);
+    },
+    () => {
+      // Normal deletion
+      events[fullKey].splice(index, 1);
+
+      // Also delete from linked templates if this event was part of one
+      if (isLinked) {
+        templates[weekday][time] = templates[weekday][time].filter(tpl => tpl.student !== ev.student);
+        // Remove empty arrays to keep things clean
+        if (templates[weekday][time].length === 0) delete templates[weekday][time];
+      }
+
+      renderCalendar(currentDate);
+    },
+    ev
+  );
+}
+
 
 function showDialog(title,onSave,onDelete,data={}){
   dialogContainer.innerHTML='';dialogContainer.style.display='flex';
