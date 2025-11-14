@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cipher Tongue — Encoder/Decoder</title>
+<style>
+  :root{
+    --bg:#0b0f14;        /* deep slate */
+    --panel:#111821;     /* panel */
+    --muted:#17202b;     /* muted panel */
+    --ink:#e6eef7;       /* text */
+    --ink-dim:#a9b6c6;   /* secondary text */
+    --brand:#4ea1ff;     /* accent */
+    --brand-2:#7c5cff;   /* accent 2 */
+    --ok:#38b000;        /* ok */
+    --warn:#ffbe0b;      /* warn */
+    --danger:#ff3864;    /* error */
+    --ring: 0 0 0 2px rgba(78,161,255,.35);
+  }
+  * { box-sizing: border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0; background:linear-gradient(135deg,var(--bg),#0f1720 40%, #0b1220 100%);
+    color:var(--ink); font: 14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  .wrap{ max-width:1300px; margin:32px auto; padding:24px; }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px;
+  }
+  .title{ font-weight:700; letter-spacing:.3px; font-size:18px; display:flex; align-items:center; gap:10px; }
+  .badge{ background:linear-gradient(90deg,var(--brand),var(--brand-2)); padding:2px 8px; border-radius:999px; font-size:12px; color:white; }
+  .controls{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .seg{ background:var(--panel); border:1px solid #213144; border-radius:10px; padding:6px; display:flex; gap:6px; }
+  .seg button{ background:transparent; color:var(--ink-dim); border:0; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600; }
+  .seg button.active{ background:linear-gradient(180deg,#1b2634,#141c27); color:var(--ink); box-shadow:var(--ring); }
+  .field{ background:var(--panel); border:1px solid #213144; padding:10px 12px; border-radius:10px; display:flex; align-items:center; gap:8px; }
+  .field input{ all:unset; color:var(--ink); font-weight:600; width:240px; }
+  .chk{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid #213144; padding:8px 10px; border-radius:10px; }
+  .hint{ color:var(--ink-dim); font-size:12px; }
+
+  .grid{ display:grid; grid-template-columns: 1fr 56px 1fr; gap:16px; align-items:stretch; margin-top:16px; }
+  .card{ background:var(--panel); border:1px solid #213144; border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+  .card h3{ margin:0; font-size:13px; letter-spacing:.2px; color:#d9e6f5; }
+  textarea{ width:100%; height:360px; resize:vertical; background:var(--muted); color:var(--ink); border:1px solid #223245; border-radius:10px; padding:12px; outline:none; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  textarea:focus{ box-shadow:var(--ring); border-color:#29527a; }
+  .btnbar{ display:flex; flex-wrap:wrap; gap:8px; }
+  .btn{ background:linear-gradient(180deg,#1b2634,#141c27); color:var(--ink); border:1px solid #213144; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:700; letter-spacing:.2px; }
+  .btn:hover{ filter:brightness(1.08); }
+  .btn.ghost{ background:transparent; color:var(--ink-dim); }
+  .btn.brand{ background:linear-gradient(180deg,#29527a,#1a2f45); border-color:#2b5b8a; }
+  .btn.ok{ background:linear-gradient(180deg,#1e3a27,#142718); border-color:#24592f; }
+  .btn.warn{ background:linear-gradient(180deg,#3b2f10,#261f10); border-color:#6b4d0e; }
+  .btn.danger{ background:linear-gradient(180deg,#401a24,#2a1118); border-color:#6e2030; }
+  .midcol{ display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; }
+  .arrow{ width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:linear-gradient(180deg,#1b2634,#141c27); border:1px solid #213144; color:#a6c6ff; font-size:20px; user-select:none; }
+
+  .footer{ margin-top:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; color:var(--ink-dim); font-size:12px; }
+  .error{ color:var(--danger); font-weight:700; }
+  .kbd{ background:#0d141e; border:1px solid #1d2b3d; padding:2px 6px; border-radius:6px; }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">
+        <span class="badge">v1.2</span>
+        <span>Cipher Tongue — Keyed Syllabic Encoder/Decoder</span>
+      </div>
+      <div class="controls">
+        <div class="seg" id="modeSeg">
+          <button data-mode="encode" class="active" title="Encode plain text -> secret">Encode</button>
+          <button data-mode="decode" title="Decode secret -> plain text">Decode</button>
+        </div>
+        <div class="field">
+          <span class="hint">Key</span>
+          <input id="keyInput" placeholder="enter key…" />
+          <button class="btn ghost" id="rndKey" title="Random key">🎲</button>
+        </div>
+        <label class="chk" title="Insert removable {decoy} tokens to obfuscate the output (encode only)">
+          <input type="checkbox" id="decoysChk" />
+          <span>Decoys</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Input</h3>
+        <textarea id="inText" placeholder="Type or paste here…"></textarea>
+        <div class="btnbar">
+          <label class="btn ghost"><input id="fileOpen" type="file" hidden>Open file…</label>
+          <button class="btn ghost" id="clearIn">Clear</button>
+          <span class="hint">Tip: Use <span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> to run</span>
+        </div>
+      </div>
+
+      <div class="midcol">
+        <div class="arrow" id="dirArrow" title="Direction">→</div>
+        <button class="btn brand" id="runBtn">Run</button>
+        <button class="btn ok" id="swapBtn" title="Swap input/output">Swap</button>
+      </div>
+
+      <div class="card">
+        <h3>Output</h3>
+        <textarea id="outText" placeholder="Your result shows here…" readonly></textarea>
+        <div class="btnbar">
+          <button class="btn ghost" id="copyOut">Copy</button>
+          <button class="btn ghost" id="downloadOut">Download…</button>
+          <span id="status" class="hint"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        Uppercase letters are marked using a preceding <span class="mono">^</span> token inside words. Tokens inside braces <span class="mono">{like-this}</span> are decoys and are ignored by the decoder. Word tokens are hyphen-joined.
+      </div>
+      <div id="err" class="error"></div>
+    </div>
+  </div>
+
+<script>
+// ===== Utilities =====
+const $ = (sel) => document.querySelector(sel);
+function setStatus(msg, ok=true){ const el = document.querySelector('#status'); if(el){ el.textContent = msg; el.style.color = ok ? 'var(--ink-dim)' : 'var(--danger)'; } }
+function setError(msg){ const el = document.querySelector('#err'); if(el){ el.textContent = msg || ''; } }
+function download(filename, text){ const blob = new Blob([text], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+
+// ===== Deterministic mapping (no RNG, no key) =====
+// One fixed syllable per letter; digits map to fixed tokens. Uppercase uses '^' marker.
+const SYL = {
+  a:"hajsa", b:"daaj", c:"fgadh", d:"gdspa", e:"jfasss", f:"hjagfaw", g:"gajass", h:"gidhgs",
+  i:"kassf", j:"rai", k:"gjis", l:"afiahi", m:"gdsdsfag", n:"nafsahas", o:"hsjhda", p:"agjjgaagan",
+  q:"taassf", r:"sfad", s:"gdidf", t:"ajdiaa", u:"hhshdqe", v:"fjsasfa", w:"jagss", x:"afjajf",
+  y:"gjsaas", z:"ndgaawq",
+};
+const DSYL = { '0':'dnu','1':'dkae','2':'ddi','3':'dtri','4':'dqua','5':'dpen','6':'dhex','7':'dsev','8':'dokt','9':'dnon' };
+const REV_SYL = new Map(Object.entries(SYL).map(([k,v])=>[v,k]));
+const REV_DSYL = new Map(Object.entries(DSYL).map(([k,v])=>[v,k]));
+
+const ALPHA="abcdefghijklmnopqrstuvwxyz";
+const TOKEN_RE=/[A-Za-z0-9]+|[^A-Za-z0-9]+/g;
+
+// Encode: plain -> secret
+function encodeText(s){
+  const out=[]; const chunks = s.match(TOKEN_RE) || [];
+  for(const chunk of chunks){
+    if(/^[A-Za-z0-9]+$/.test(chunk)){
+      const tokens=[];
+      for(const ch of chunk){
+        if(/[A-Za-z]/.test(ch)){
+          const isUpper = ch===ch.toUpperCase();
+          const low = ch.toLowerCase();
+          if(!ALPHA.includes(low)){ tokens.push(ch); continue; }
+          if(isUpper) tokens.push('^');
+          tokens.push(SYL[low]);
+        } else if(/[0-9]/.test(ch)){
+          tokens.push(DSYL[ch]);
+        } else {
+          tokens.push(ch);
+        }
+      }
+      out.push(tokens.join('-'));
+    } else {
+      out.push(chunk);
+    }
+  }
+  return out.join('');
+}
+
+// Decode: secret -> plain
+function decodeText(s){
+  const out=[]; const chunks = s.match(TOKEN_RE) || [];
+  for(const chunk of chunks){
+    if(/^[A-Za-z^\-{}\s]+$/.test(chunk)){
+      const tokens = chunk.split('-').filter(t=>t!=='');
+      const word=[]; let upperNext=false;
+      for(let i=0;i<tokens.length;i++){
+        const tok=tokens[i];
+        if(tok.startsWith('{') && tok.endsWith('}')) continue; // ignore braces if present
+        if(tok==='^'){ upperNext=true; continue; }
+        if(REV_DSYL.has(tok)){ word.push(REV_DSYL.get(tok)); upperNext=false; continue; }
+        if(REV_SYL.has(tok)){ const ch = REV_SYL.get(tok); word.push(upperNext ? ch.toUpperCase() : ch); upperNext=false; continue; }
+        word.push(tok); upperNext=false; // passthrough
+      }
+      out.push(word.join(''));
+    } else {
+      out.push(chunk);
+    }
+  }
+  return out.join('');
+}
+
+// ===== Wire up UI =====
+let mode = 'encode';
+document.querySelector('#modeSeg').addEventListener('click', (e)=>{
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  mode = e.target.dataset.mode;
+  document.querySelector('#dirArrow').textContent = mode==='encode' ? '→' : '←';
+  setStatus(''); setError('');
+});
+document.querySelector('#fileOpen').addEventListener('change', async (ev)=>{
+  const f=ev.target.files[0]; if(!f) return;
+  const text = await f.text(); document.querySelector('#inText').value = text; setStatus('Loaded '+f.name);
+});
+document.querySelector('#clearIn').addEventListener('click', ()=>{ document.querySelector('#inText').value=''; setStatus(''); });
+document.querySelector('#copyOut').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(document.querySelector('#outText').value); setStatus('Copied'); }
+  catch{ setStatus('Copy failed', false); }
+});
+document.querySelector('#downloadOut').addEventListener('click', ()=>{
+  const fn = mode==='encode' ? 'encoded.txt' : 'decoded.txt';
+  download(fn, document.querySelector('#outText').value);
+});
+document.querySelector('#swapBtn').addEventListener('click', ()=>{
+  const a=document.querySelector('#inText').value, b=document.querySelector('#outText').value;
+  document.querySelector('#inText').value=b; document.querySelector('#outText').value=a; setStatus('Swapped');
+});
+
+function runOnce(){
+  setError('');
+  const txt = document.querySelector('#inText').value;
+  try{
+    const out = mode==='encode' ? encodeText(txt) : decodeText(txt);
+    document.querySelector('#outText').value = out;
+    setStatus('Done');
+  }catch(err){
+    console.error(err); setError(String(err.message||err)); setStatus('Failed', false);
+  }
+}
+document.querySelector('#runBtn').addEventListener('click', runOnce);
+document.querySelector('#inText').addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key==='Enter'){ e.preventDefault(); runOnce(); } });
+
+// Preset for quick testing
+document.querySelector('#inText').value = 'SACRAMENT of Access, 2025!';
+</script>
+
+</body>
+</html>
