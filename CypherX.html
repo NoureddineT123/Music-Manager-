@@ -131,10 +131,10 @@ function download(filename, text){ const blob = new Blob([text], {type:'text/pla
 // ===== Deterministic mapping (no RNG, no key) =====
 // One fixed syllable per letter; digits map to fixed tokens. Uppercase uses '^' marker.
 const SYL = {
-  a:"hajsa", b:"daaj", c:"fgadh", d:"gdspa", e:"jfasss", f:"hjagfaw", g:"gajass", h:"gidhgs",
-  i:"kassf", j:"rai", k:"gjis", l:"afiahi", m:"gdsdsfag", n:"nafsahas", o:"hsjhda", p:"agjjgaagan",
-  q:"taassf", r:"sfad", s:"gdidf", t:"ajdiaa", u:"hhshdqe", v:"fjsasfa", w:"jagss", x:"afjajf",
-  y:"gjsaas", z:"ndgaawq",
+  a:"sjsaas", b:"daadfj", c:"fsas", d:"gdsa", e:"jfass", f:"hjgfaw", g:"gajss", h:"gihgs",
+  i:"kghgs", j:"rai", k:"gji", l:"afihi", m:"gdsdsfg", n:"nafahas", o:"hsjda", p:"agjjgagan",
+  q:"mndsa", r:"dfdfd", s:"idfs", t:"ajdaa", u:"hhshqe", v:"fjssfa", w:"jass", x:"afajf",
+  y:"fdfasa", z:"fgsaa",
 };
 const DSYL = { '0':'dnu','1':'dkae','2':'ddi','3':'dtri','4':'dqua','5':'dpen','6':'dhex','7':'dsev','8':'dokt','9':'dnon' };
 const REV_SYL = new Map(Object.entries(SYL).map(([k,v])=>[v,k]));
