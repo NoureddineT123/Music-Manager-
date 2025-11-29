@@ -1,0 +1,241 @@
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <title>LavaJavaMC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #050308;
+      color: #fff;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* === LAVA BACKGROUND: 4 SMALLER B1 TILES IN CORNERS === */
+    .lava-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        url("images/b1.png"),
+        url("images/b1.png"),
+        url("images/b1.png"),
+        url("images/b1.png");
+      background-position:
+        top left,
+        top right,
+        bottom left,
+        bottom right;
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+      background-size: 35% auto;
+      image-rendering: pixelated;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(circle at top, transparent 0, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.9) 100%);
+    }
+
+    /* === CENTERED CARD === */
+    .content {
+      position: relative;
+      text-align: center;
+      padding: 40px 60px;
+      border-radius: 24px;
+      background: rgba(4, 4, 10, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 153, 0, 0.6);
+      box-shadow:
+        0 0 35px rgba(0, 0, 0, 0.9),
+        0 0 60px rgba(255, 120, 0, 0.55);
+      max-width: 480px;
+      width: 90%;
+    }
+
+    .logo-text {
+      font-family: "Audiowide", system-ui, sans-serif;
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      background: linear-gradient(120deg, #ffe082, #ffb300, #ff7043, #ffcc80);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow:
+        0 0 10px rgba(0, 0, 0, 0.9),
+        0 0 22px rgba(255, 140, 0, 0.8);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 26px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* === PLAY BUTTON === */
+    .play-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 32px;
+      height: 64px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #1b0500;
+      background-image:
+        radial-gradient(circle at 20% 0%, #fffde7 0, #ffe082 18%, transparent 40%),
+        linear-gradient(135deg, #ffb300, #ff6f00, #e65100);
+      box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.9),
+        0 0 35px rgba(255, 140, 0, 0.95);
+      overflow: hidden;
+      transition:
+        transform 0.16s ease-out,
+        box-shadow 0.16s ease-out,
+        filter 0.16s ease-out;
+    }
+
+    .play-btn::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(255,255,255,0.35), transparent 40%, transparent 60%, rgba(255,255,255,0.25));
+      opacity: 0;
+      transform: translateX(-60%);
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+      pointer-events: none;
+    }
+
+    .play-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow:
+        0 12px 35px rgba(0, 0, 0, 1),
+        0 0 55px rgba(255, 180, 0, 1);
+      filter: brightness(1.05);
+    }
+
+    .play-btn:hover::before {
+      opacity: 1;
+      transform: translateX(40%);
+    }
+
+    .play-btn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.8),
+        0 0 28px rgba(255, 140, 0, 0.7);
+    }
+
+    .play-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(27, 5, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-icon::before {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 6px 0 6px 10px;
+      border-color: transparent transparent transparent #ffeb3b;
+      transform: translateX(1px);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 480px) {
+      .content {
+        padding: 28px 20px;
+        border-radius: 18px;
+      }
+      .logo-text {
+        letter-spacing: 0.12em;
+      }
+      .play-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- LAVA BACKGROUND: 4 CORNER TILES -->
+  
+  <div class="vignette"></div>
+
+  <main class="content">
+    <h1 class="logo-text">Lava<br>MC</h1>
+    <p class="subtitle">Click to add &amp; join the server</p>
+
+    <button id="playButton" class="play-btn">
+      <span class="play-icon"></span>
+      <span>Play</span>
+    </button>
+
+    <p class="footer-note">
+      If nothing happens, make sure Minecraft is installed and protocol links are enabled.<br><br><br>
+
+<p align="center">- For Manual Usage</p><br>
+IP: <b>JavaLavaMC.aternos.me</b>
+<br>
+<b>Port: 32614</b>
+    </p>
+<p></p>
+  <p align="center"></p>
+
+  <script>
+    (function () {
+      const url = "minecraft://?addExternalServer=JavaLavaMC|JavaLavaMC.aternos.me:32614";
+      const btn = document.getElementById("playButton");
+
+      function launchMinecraft() {
+        window.location.href = url;
+      }
+
+      btn.addEventListener("click", launchMinecraft);
+      btn.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          launchMinecraft();
+        }
+      });
+    })();
+  </script>
+
+
+</main></body></html>
