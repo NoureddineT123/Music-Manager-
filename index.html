@@ -38,7 +38,8 @@
   .nav { display: flex; gap: 10px; }
   .nav .icon { background: rgba(255,255,255,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-  .grid { display: grid; grid-template-columns: 80px repeat(7, 1fr); background: #eee; gap: 1px; }
+  /* Adjusted grid to repeat 6 times (Mon-Sat) instead of 7 */
+  .grid { display: grid; grid-template-columns: 80px repeat(6, 1fr); background: #eee; gap: 1px; }
   .cell { background: #fff; padding: 8px; min-height: 50px; }
   
   .day-header { background: var(--muted); text-align: center; font-weight: 700; display: flex; flex-direction: column; gap: 4px; padding: 12px 5px; }
@@ -70,7 +71,7 @@
   input:checked + .slider:before { transform: translateX(20px); }
 
   @media (max-width: 900px) {
-    .grid { grid-template-columns: 60px repeat(7, 120px); overflow-x: auto; }
+    .grid { grid-template-columns: 60px repeat(6, 120px); overflow-x: auto; }
   }
 </style>
 </head>
@@ -185,6 +186,7 @@ function formatTimeAMPM(h, m) {
 
 function getWeekStart(date) {
   const d = new Date(date);
+  // Get difference to Monday. If Sunday (0), move back 6 days.
   const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
   d.setDate(d.getDate() + diff);
   d.setHours(0,0,0,0);
@@ -195,7 +197,8 @@ function renderCalendar(date) {
   grid.innerHTML = '';
   const startOfWeek = getWeekStart(date);
   const days = [];
-  for (let i = 0; i < 7; i++) {
+  // Loop 6 times (0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat)
+  for (let i = 0; i < 6; i++) {
     const dd = new Date(startOfWeek);
     dd.setDate(dd.getDate() + i);
     days.push(dd);
@@ -205,7 +208,7 @@ function renderCalendar(date) {
   const tl = document.createElement('div'); tl.className = 'cell day-header';
   grid.appendChild(tl);
 
-  // Headers
+  // Headers (Mon-Sat)
   days.forEach(d => {
     const wkIdx = d.getDay();
     const isLinked = linkedWeekdays[wkIdx];
@@ -237,10 +240,8 @@ function renderCalendar(date) {
         const slot = document.createElement('div');
         slot.className = 'cell slot';
         
-        // Ensure event array exists
         if (!events[fullKey]) events[fullKey] = [];
 
-        // Logic for linked templates
         let displayList = [...events[fullKey]];
         if (linkedWeekdays[wkIdx] && templates[wkIdx]?.[timeKey]) {
           templates[wkIdx][timeKey].forEach(tpl => {
@@ -248,7 +249,6 @@ function renderCalendar(date) {
               displayList.push({ ...tpl, note: '', absent: false });
             }
           });
-          // Update the actual events object to include template items
           events[fullKey] = displayList;
         }
 
@@ -266,7 +266,7 @@ function renderCalendar(date) {
     }
   }
 
-  weekRange.textContent = `${days[0].toLocaleDateString(undefined, {month:'short', day:'numeric'})} — ${days[6].toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}`;
+  weekRange.textContent = `${days[0].toLocaleDateString(undefined, {month:'short', day:'numeric'})} — ${days[5].toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}`;
 }
 
 function toggleLink(idx, dateStr) {
@@ -276,7 +276,6 @@ function toggleLink(idx, dateStr) {
   } else {
     linkedWeekdays[idx] = true;
     templates[idx] = {};
-    // Grab all events from this specific date to create template
     for (let h = startHour; h <= endHour; h++) {
       for (let m = 0; m < 60; m += slotStep) {
         const tk = formatTimeAMPM(h, m);
