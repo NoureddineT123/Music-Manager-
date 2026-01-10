@@ -1,108 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Student Scheduler - Conservatory</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Pro Scheduler | Conservatory</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-  :root {
-    --accent: #0078d4;
-    --muted: #f3f3f3;
-    --card: #ffffff;
-    --text: #222;
-    --danger: #ff4c4c;
-    --ok: #28a745;
-    --bg-overlay: rgba(0,0,0,0.5);
-  }
+        :root {
+            --primary: #0f172a;    /* Deep Navy */
+            --accent: #2563eb;     /* Modern Blue */
+            --gold: #d4af37;       /* Conservatory Gold */
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
 
-  * { box-sizing: border-box; font-family: "Segoe UI", system-ui, sans-serif; }
-  body { margin: 0; background: #f5f6f8; padding: 20px; display: flex; justify-content: center; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text-main);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-  .wrap { width: 100%; max-width: 1200px; }
-  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-  
-  .title h1 { font-size: 18px; margin: 0; color: var(--text); line-height: 1.4; }
-  .controls { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-  .branch-info { font-weight: 700; color: #333; text-align: right; font-size: 14px; }
-  
-  .btn { background: var(--accent); border: none; color: #fff; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: opacity 0.2s; }
-  .btn:hover { opacity: 0.9; }
-  .btn.secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
-  .btn.danger { background: var(--danger); }
+        /* Top Branding Bar */
+        .brand-bar {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--gold);
+        }
 
-  .calendar { background: var(--card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--accent); color: #fff; }
-  
-  .nav { display: flex; gap: 10px; }
-  .nav .icon { background: rgba(255,255,255,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .brand-bar h1 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            letter-spacing: 1px; 
+            font-weight: 700;
+            text-transform: uppercase;
+        }
 
-  /* Adjusted grid to repeat 6 times (Mon-Sat) instead of 7 */
-  .grid { display: grid; grid-template-columns: 80px repeat(6, 1fr); background: #eee; gap: 1px; }
-  .cell { background: #fff; padding: 8px; min-height: 50px; }
-  
-  .day-header { background: var(--muted); text-align: center; font-weight: 700; display: flex; flex-direction: column; gap: 4px; padding: 12px 5px; }
-  .day-date { font-weight: 400; font-size: 11px; color: #666; }
-  
-  .link-btn { margin-top: 5px; font-size: 10px; padding: 4px; cursor: pointer; border-radius: 4px; border: 1px solid #ddd; background: #fff; }
-  .link-btn.linked { background: #e6f7ff; border-color: var(--accent); color: var(--accent); }
+        .brand-bar p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; font-weight: 300; }
 
-  .time-label { background: var(--muted); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
-  .slot { cursor: pointer; transition: background 0.1s; position: relative; }
-  .slot:hover { background: #f9f9f9; }
+        .container { 
+            width: 95%; 
+            max-width: 1400px; 
+            padding: 20px 0;
+        }
 
-  .event { display: block; padding: 5px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 12px; background: #e3f2fd; border-left: 3px solid var(--accent); color: #111; word-break: break-word; }
-  .event.absent { background: #ffebee; border-left-color: var(--danger); text-decoration: line-through; opacity: 0.8; }
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
 
-  /* Dialog */
-  .dialog-back { position: fixed; inset: 0; background: var(--bg-overlay); display: flex; align-items: center; justify-content: center; z-index: 100; }
-  .dialog { background: #fff; padding: 25px; border-radius: 12px; width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-  .form-row { margin-bottom: 15px; }
-  label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
-  input, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; outline: none; }
-  
-  .switch-row { display: flex; align-items: center; gap: 10px; background: #f8f8f8; padding: 8px; border-radius: 6px; }
-  .switch { position: relative; width: 40px; height: 20px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; inset: 0; background: #ccc; transition: .3s; border-radius: 20px; }
-  .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; }
-  input:checked + .slider { background: var(--danger); }
-  input:checked + .slider:before { transform: translateX(20px); }
+        .prof-info h2 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .prof-info span { color: var(--text-muted); font-size: 0.95rem; }
 
-  @media (max-width: 900px) {
-    .grid { grid-template-columns: 60px repeat(6, 120px); overflow-x: auto; }
-  }
-</style>
+        .actions { display: flex; gap: 10px; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #1e293b; transform: translateY(-1px); }
+        
+        .btn-outline { background: white; border-color: var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        .btn-danger { color: var(--danger); border-color: #fee2e2; background: #fef2f2; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        /* Calendar Shell */
+        .calendar-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .calendar-nav {
+            padding: 15px 25px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .current-week { font-weight: 700; font-size: 1.1rem; color: var(--primary); }
+
+        /* The Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 90px repeat(6, 1fr);
+            overflow-x: auto;
+        }
+
+        .cell {
+            padding: 12px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            min-height: 80px;
+            position: relative;
+        }
+
+        /* Sticky Headers */
+        .day-header {
+            background: #f8fafc;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-align: center;
+            font-weight: 700;
+            padding: 15px 10px;
+        }
+        
+        .day-name { font-size: 0.8rem; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; }
+        .day-date { font-size: 1.1rem; color: var(--text-main); }
+
+        .time-col {
+            background: #f8fafc;
+            position: sticky;
+            left: 0;
+            z-index: 9;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            border-right: 2px solid var(--border);
+        }
+
+        /* Event Styling */
+        .slot { cursor: cell; transition: background 0.1s; }
+        .slot:hover { background: #f1f5f9; }
+
+        .event {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .event:hover { transform: scale(1.02); }
+        .event strong { display: block; color: var(--primary); margin-bottom: 2px; }
+        .event span.grade { font-size: 10px; background: #dbeafe; padding: 2px 5px; border-radius: 4px; color: var(--accent); }
+        
+        .event.absent {
+            background: #fff1f2;
+            border-left-color: var(--danger);
+            opacity: 0.7;
+        }
+
+        /* Link Button Style */
+        .link-toggle {
+            margin-top: 8px;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .link-toggle.active {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        /* Modal / Dialog */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        .modal h3 { margin-top: 0; font-size: 1.25rem; color: var(--primary); }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--accent); }
+
+        /* Custom Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--danger); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        @media (max-width: 1024px) {
+            .grid { grid-template-columns: 80px repeat(6, 150px); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="top">
-    <div class="title">
-      <h1>The Lebanese National High Conservatory Of Music<br>Academic Year: 2025 - 2026</h1>
-    </div>
-    <div class="controls">
-      <div class="branch-info">Piano Professor: Ghada Nahouli<br>Branch: Saida</div>
-      <div style="display:flex; gap:6px;">
-        <button class="btn danger" id="clearStorage">Clear All</button>
-        <button class="btn secondary" id="downloadJson">Download JSON</button>
-        <button class="btn" id="uploadJson">Upload JSON</button>
-        <input type="file" id="fileInput" accept=".json" style="display:none;">
-      </div>
-    </div>
-  </div>
+<div class="brand-bar">
+    <h1>The Lebanese National High Conservatory Of Music</h1>
+    <p>Academic Year: 2025 — 2026</p>
+</div>
 
-  <div class="calendar">
-    <div class="header">
-      <div class="week-range" id="weekRange">---</div>
-      <div class="nav">
-        <div class="icon" id="prevWeek">◀</div>
-        <div class="icon" id="nextWeek">▶</div>
-      </div>
+<div class="container">
+    <div class="dashboard-header">
+        <div class="prof-info">
+            <h2>Ghada Nahouli</h2>
+            <span>Piano Professor • Saida Branch</span>
+        </div>
+        <div class="actions">
+            <button class="btn btn-danger" id="clearStorage">Clear Data</button>
+            <button class="btn btn-outline" id="uploadJson">Import</button>
+            <button class="btn btn-primary" id="downloadJson">Export Backup</button>
+            <input type="file" id="fileInput" accept=".json" style="display:none;">
+        </div>
     </div>
-    <div class="grid" id="calendarGrid"></div>
-  </div>
+
+    <div class="calendar-card">
+        <div class="calendar-nav">
+            <button class="btn btn-outline" id="prevWeek">← Previous</button>
+            <div class="current-week" id="weekRange">---</div>
+            <button class="btn btn-outline" id="nextWeek">Next →</button>
+        </div>
+        <div class="grid" id="calendarGrid"></div>
+    </div>
 </div>
 
 <div id="dialogContainer" style="display: none;"></div>
@@ -126,256 +337,223 @@ let templates = JSON.parse(localStorage.getItem(TMP_KEY)) || {};
 let linkedWeekdays = JSON.parse(localStorage.getItem(LINK_KEY)) || {};
 
 function saveAll() {
-  localStorage.setItem(EV_KEY, JSON.stringify(events));
-  localStorage.setItem(TMP_KEY, JSON.stringify(templates));
-  localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
-  console.log("Auto-saved to storage");
+    localStorage.setItem(EV_KEY, JSON.stringify(events));
+    localStorage.setItem(TMP_KEY, JSON.stringify(templates));
+    localStorage.setItem(LINK_KEY, JSON.stringify(linkedWeekdays));
 }
 
-// 1 Second Auto-Save
 setInterval(saveAll, 1000);
 
-// 7-Day Backup Logic
-function checkBackupStatus() {
-  const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
-  const now = new Date().getTime();
-  const sevenDays = 7 * 24 * 60 * 60 * 1000;
-
-  if (!lastBackup || (now - lastBackup) > sevenDays) {
-    setTimeout(() => {
-      alert("Notice: It has been 7 days since your last manual backup. We will now download your data.");
-      downloadData();
-    }, 2000);
-  }
-}
-
 function downloadData() {
-  const data = { events, templates, linkedWeekdays };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `conservatory-backup-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  localStorage.setItem(LAST_BACKUP_KEY, new Date().getTime().toString());
+    const data = { events, templates, linkedWeekdays };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    localStorage.setItem(LAST_BACKUP_KEY, new Date().getTime().toString());
 }
 
 document.getElementById('downloadJson').onclick = downloadData;
-
 document.getElementById('uploadJson').onclick = () => document.getElementById('fileInput').click();
 document.getElementById('fileInput').onchange = e => {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = evt => {
-    try {
-      const data = JSON.parse(evt.target.result);
-      events = data.events || {}; templates = data.templates || {}; linkedWeekdays = data.linkedWeekdays || {};
-      saveAll(); renderCalendar(currentDate);
-      alert('Data imported!');
-    } catch(err) { alert('Invalid file'); }
-  };
-  reader.readAsText(file);
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = evt => {
+        try {
+            const data = JSON.parse(evt.target.result);
+            events = data.events || {}; templates = data.templates || {}; linkedWeekdays = data.linkedWeekdays || {};
+            saveAll(); renderCalendar(currentDate);
+        } catch(err) { alert('Invalid file'); }
+    };
+    reader.readAsText(file);
 };
 
 function isoDate(d) { return d.toISOString().split('T')[0]; }
 function formatTimeAMPM(h, m) {
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const hr = h > 12 ? h - 12 : (h === 0 ? 12 : h);
-  return `${hr}:${m.toString().padStart(2, '0')} ${ampm}`;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hr = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${hr}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
 function getWeekStart(date) {
-  const d = new Date(date);
-  // Get difference to Monday. If Sunday (0), move back 6 days.
-  const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
-  d.setDate(d.getDate() + diff);
-  d.setHours(0,0,0,0);
-  return d;
+    const d = new Date(date);
+    const diff = d.getDay() === 0 ? -6 : 1 - d.getDay();
+    d.setDate(d.getDate() + diff);
+    d.setHours(0,0,0,0);
+    return d;
 }
 
 function renderCalendar(date) {
-  grid.innerHTML = '';
-  const startOfWeek = getWeekStart(date);
-  const days = [];
-  // Loop 6 times (0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat)
-  for (let i = 0; i < 6; i++) {
-    const dd = new Date(startOfWeek);
-    dd.setDate(dd.getDate() + i);
-    days.push(dd);
-  }
-
-  // Top Left empty cell
-  const tl = document.createElement('div'); tl.className = 'cell day-header';
-  grid.appendChild(tl);
-
-  // Headers (Mon-Sat)
-  days.forEach(d => {
-    const wkIdx = d.getDay();
-    const isLinked = linkedWeekdays[wkIdx];
-    const cell = document.createElement('div');
-    cell.className = 'cell day-header';
-    cell.innerHTML = `
-      <div class="day-name">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>
-      <div class="day-date">${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-      <button class="link-btn ${isLinked ? 'linked' : ''}" onclick="toggleLink(${wkIdx}, '${isoDate(d)}')">
-        ${isLinked ? '🔗 Linked' : 'Link Week'}
-      </button>
-    `;
-    grid.appendChild(cell);
-  });
-
-  // Time Slots
-  for (let h = startHour; h <= endHour; h++) {
-    for (let m = 0; m < 60; m += slotStep) {
-      const timeKey = formatTimeAMPM(h, m);
-      const tlbl = document.createElement('div');
-      tlbl.className = 'cell time-label';
-      tlbl.textContent = timeKey;
-      grid.appendChild(tlbl);
-
-      days.forEach(d => {
-        const dKey = isoDate(d);
-        const fullKey = `${dKey}-${timeKey}`;
-        const wkIdx = d.getDay();
-        const slot = document.createElement('div');
-        slot.className = 'cell slot';
-        
-        if (!events[fullKey]) events[fullKey] = [];
-
-        let displayList = [...events[fullKey]];
-        if (linkedWeekdays[wkIdx] && templates[wkIdx]?.[timeKey]) {
-          templates[wkIdx][timeKey].forEach(tpl => {
-            if (!displayList.find(e => e.student === tpl.student)) {
-              displayList.push({ ...tpl, note: '', absent: false });
-            }
-          });
-          events[fullKey] = displayList;
-        }
-
-        displayList.forEach((ev, idx) => {
-          const el = document.createElement('span');
-          el.className = `event ${ev.absent ? 'absent' : ''}`;
-          el.innerHTML = `<strong>${ev.student}</strong> ${ev.grade ? '['+ev.grade+']' : ''}<br><small>${ev.note || ''}</small>`;
-          el.onclick = (e) => { e.stopPropagation(); openEditDialog(dKey, timeKey, idx); };
-          slot.appendChild(el);
-        });
-
-        slot.onclick = () => openAddDialog(dKey, timeKey);
-        grid.appendChild(slot);
-      });
+    grid.innerHTML = '';
+    const startOfWeek = getWeekStart(date);
+    const days = [];
+    for (let i = 0; i < 6; i++) {
+        const dd = new Date(startOfWeek);
+        dd.setDate(dd.getDate() + i);
+        days.push(dd);
     }
-  }
 
-  weekRange.textContent = `${days[0].toLocaleDateString(undefined, {month:'short', day:'numeric'})} — ${days[5].toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})}`;
+    // Top Left empty
+    const tl = document.createElement('div'); tl.className = 'cell day-header';
+    grid.appendChild(tl);
+
+    // Day Headers
+    days.forEach(d => {
+        const wkIdx = d.getDay();
+        const isLinked = linkedWeekdays[wkIdx];
+        const cell = document.createElement('div');
+        cell.className = 'cell day-header';
+        cell.innerHTML = `
+            <div class="day-name">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+            <div class="day-date">${d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+            <button class="link-toggle ${isLinked ? 'active' : ''}" onclick="toggleLink(${wkIdx}, '${isoDate(d)}')">
+                ${isLinked ? '✓ Linked' : 'Link Weekly'}
+            </button>
+        `;
+        grid.appendChild(cell);
+    });
+
+    // Time Rows
+    for (let h = startHour; h <= endHour; h++) {
+        for (let m = 0; m < 60; m += slotStep) {
+            const timeKey = formatTimeAMPM(h, m);
+            const tlbl = document.createElement('div');
+            tlbl.className = 'cell time-col';
+            tlbl.textContent = timeKey;
+            grid.appendChild(tlbl);
+
+            days.forEach(d => {
+                const dKey = isoDate(d);
+                const fullKey = `${dKey}-${timeKey}`;
+                const wkIdx = d.getDay();
+                const slot = document.createElement('div');
+                slot.className = 'cell slot';
+                
+                if (!events[fullKey]) events[fullKey] = [];
+
+                let displayList = [...events[fullKey]];
+                if (linkedWeekdays[wkIdx] && templates[wkIdx]?.[timeKey]) {
+                    templates[wkIdx][timeKey].forEach(tpl => {
+                        if (!displayList.find(e => e.student === tpl.student)) {
+                            displayList.push({ ...tpl, note: '', absent: false });
+                        }
+                    });
+                    events[fullKey] = displayList;
+                }
+
+                displayList.forEach((ev, idx) => {
+                    const el = document.createElement('div');
+                    el.className = `event ${ev.absent ? 'absent' : ''}`;
+                    el.innerHTML = `<strong>${ev.student}</strong> ${ev.grade ? '<span class="grade">'+ev.grade+'</span>' : ''}`;
+                    el.onclick = (e) => { e.stopPropagation(); openEditDialog(dKey, timeKey, idx); };
+                    slot.appendChild(el);
+                });
+
+                slot.onclick = () => openAddDialog(dKey, timeKey);
+                grid.appendChild(slot);
+            });
+        }
+    }
+    weekRange.textContent = `${days[0].toLocaleDateString(undefined, {month:'long', day:'numeric'})} — ${days[5].toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'})}`;
 }
 
 function toggleLink(idx, dateStr) {
-  if (linkedWeekdays[idx]) {
-    delete linkedWeekdays[idx];
-    delete templates[idx];
-  } else {
-    linkedWeekdays[idx] = true;
-    templates[idx] = {};
-    for (let h = startHour; h <= endHour; h++) {
-      for (let m = 0; m < 60; m += slotStep) {
-        const tk = formatTimeAMPM(h, m);
-        const fk = `${dateStr}-${tk}`;
-        if (events[fk]?.length) {
-          templates[idx][tk] = events[fk].map(e => ({ student: e.student, grade: e.grade }));
+    if (linkedWeekdays[idx]) {
+        delete linkedWeekdays[idx]; delete templates[idx];
+    } else {
+        linkedWeekdays[idx] = true;
+        templates[idx] = {};
+        for (let h = startHour; h <= endHour; h++) {
+            for (let m = 0; m < 60; m += slotStep) {
+                const tk = formatTimeAMPM(h, m);
+                const fk = `${dateStr}-${tk}`;
+                if (events[fk]?.length) {
+                    templates[idx][tk] = events[fk].map(e => ({ student: e.student, grade: e.grade }));
+                }
+            }
         }
-      }
     }
-  }
-  renderCalendar(currentDate);
+    renderCalendar(currentDate);
 }
 
 function openAddDialog(dKey, tKey) {
-  showDialog(`Add Student - ${tKey}`, (data) => {
-    events[`${dKey}-${tKey}`].push(data);
-    renderCalendar(currentDate);
-  });
+    showDialog(`Add Student`, (data) => {
+        events[`${dKey}-${tKey}`].push(data);
+        renderCalendar(currentDate);
+    });
 }
 
 function openEditDialog(dKey, tKey, idx) {
-  const ev = events[`${dKey}-${tKey}`][idx];
-  showDialog(`Edit - ${tKey}`, (data) => {
-    events[`${dKey}-${tKey}`][idx] = data;
-    renderCalendar(currentDate);
-  }, () => {
-    events[`${dKey}-${tKey}`].splice(idx, 1);
-    renderCalendar(currentDate);
-  }, ev);
+    const ev = events[`${dKey}-${tKey}`][idx];
+    showDialog(`Edit Session`, (data) => {
+        events[`${dKey}-${tKey}`][idx] = data;
+        renderCalendar(currentDate);
+    }, () => {
+        events[`${dKey}-${tKey}`].splice(idx, 1);
+        renderCalendar(currentDate);
+    }, ev);
 }
 
 function showDialog(title, onSave, onDelete, existingData = {}) {
-  dialogContainer.style.display = 'flex';
-  dialogContainer.className = 'dialog-back';
-  dialogContainer.innerHTML = `
-    <div class="dialog">
-      <h3 style="margin:0 0 15px 0">${title}</h3>
-      <div class="form-row">
-        <label>Student Name</label>
-        <input type="text" id="f_student" value="${existingData.student || ''}">
-      </div>
-      <div class="form-row">
-        <label>Grade / Level</label>
-        <input type="text" id="f_grade" value="${existingData.grade || ''}">
-      </div>
-      <div class="form-row">
-        <div class="switch-row">
-          <label class="switch">
-            <input type="checkbox" id="f_absent" ${existingData.absent ? 'checked' : ''}>
-            <span class="slider"></span>
-          </label>
-          <span>Mark as Absent</span>
+    dialogContainer.style.display = 'flex';
+    dialogContainer.className = 'modal-overlay';
+    dialogContainer.innerHTML = `
+        <div class="modal">
+            <h3>${title}</h3>
+            <div class="form-group">
+                <label>Student Name</label>
+                <input type="text" id="f_student" value="${existingData.student || ''}" placeholder="Enter name...">
+            </div>
+            <div class="form-group">
+                <label>Grade / Level</label>
+                <input type="text" id="f_grade" value="${existingData.grade || ''}" placeholder="e.g. Grade 4">
+            </div>
+            <div class="form-group">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" id="f_absent" ${existingData.absent ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                    <span style="font-size:13px; font-weight:600;">Mark as Absent</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Session Notes</label>
+                <textarea id="f_note" rows="3" placeholder="Progress, homework...">${existingData.note || ''}</textarea>
+            </div>
+            <div style="display:flex; justify-content: space-between; margin-top: 25px;">
+                ${onDelete ? '<button class="btn btn-danger" id="f_del">Delete</button>' : '<div></div>'}
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-outline" onclick="closeDialog()">Cancel</button>
+                    <button class="btn btn-primary" id="f_save">Save Changes</button>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="form-row">
-        <label>Notes</label>
-        <textarea id="f_note">${existingData.note || ''}</textarea>
-      </div>
-      <div style="display:flex; justify-content: space-between;">
-        <div>
-          ${onDelete ? '<button class="btn danger" id="f_del">Delete</button>' : ''}
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn secondary" onclick="closeDialog()">Cancel</button>
-          <button class="btn" id="f_save">Save</button>
-        </div>
-      </div>
-    </div>
-  `;
+    `;
 
-  document.getElementById('f_save').onclick = () => {
-    const student = document.getElementById('f_student').value;
-    if (!student) return alert("Name required");
-    onSave({
-      student,
-      grade: document.getElementById('f_grade').value,
-      absent: document.getElementById('f_absent').checked,
-      note: document.getElementById('f_note').value
-    });
-    closeDialog();
-  };
-
-  if (onDelete) document.getElementById('f_del').onclick = () => { onDelete(); closeDialog(); };
+    document.getElementById('f_save').onclick = () => {
+        const student = document.getElementById('f_student').value;
+        if (!student) return alert("Student name is required");
+        onSave({
+            student,
+            grade: document.getElementById('f_grade').value,
+            absent: document.getElementById('f_absent').checked,
+            note: document.getElementById('f_note').value
+        });
+        closeDialog();
+    };
+    if (onDelete) document.getElementById('f_del').onclick = () => { if(confirm("Delete this entry?")) { onDelete(); closeDialog(); } };
 }
 
 function closeDialog() { dialogContainer.style.display = 'none'; }
 
 document.getElementById('prevWeek').onclick = () => { currentDate.setDate(currentDate.getDate() - 7); renderCalendar(currentDate); };
 document.getElementById('nextWeek').onclick = () => { currentDate.setDate(currentDate.getDate() + 7); renderCalendar(currentDate); };
+document.getElementById('clearStorage').onclick = () => { if (confirm("Permanently wipe all student data?")) { localStorage.clear(); location.reload(); } };
 
-document.getElementById('clearStorage').onclick = () => {
-  if (confirm("Permanently delete ALL data?")) {
-    localStorage.clear();
-    location.reload();
-  }
-};
-
-// Start
 renderCalendar(currentDate);
-checkBackupStatus();
 </script>
 
 </body>
